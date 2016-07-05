@@ -49,13 +49,13 @@ app.post("/api/v0/notification", function(req, res) {
   console.log(req.headers['content-type']);
   if (!(req.body.id || req.body.content)) {
     handleError(res, "Invalid user input", "Must provide a S1 app ID or content.", 400);
-	res.status(400).send("Invalid user input");
+	//res.status(400).send("Invalid user input");
   } else {
 	  console.log("ID: " + req.body.id);
 	  console.log("content: " + req.body.content);
 	  console.log("notificationType: " + req.body.notificationType);
 	  console.log("partnerCode: " + req.body.partnerCode);
-	  res.status(201).send("Succuss");
+	  //res.status(201).send("Succuss");
   }
 });
   /*db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
