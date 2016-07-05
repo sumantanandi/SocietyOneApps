@@ -46,6 +46,7 @@ app.post("/api/v0/notification", function(req, res) {
   console.log("POST: ");
   //newContact.createDate = new Date();
   console.log("ID: " + req.body);
+  console.log(req.headers['content-type']);
   if (!(req.body.id || req.body.content)) {
     handleError(res, "Invalid user input", "Must provide a S1 app ID or content.", 400);
   } else {
