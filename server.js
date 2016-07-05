@@ -5,6 +5,20 @@ var bodyParser = require("body-parser");
 //var ObjectID = mongodb.ObjectID;
 
 var CONTACTS_COLLECTION = "contacts";
+var EventEmitter = require('events').EventEmitter;
+var societyclient = require('./libs/societyclient');
+
+// When we submit an appication it can take a long time
+var submitApplicationProcess = new EventEmitter();
+
+/**
+ * Offline processing of an application should be handled here. Ensure that the
+ * processing status is updated when you are done.
+ */
+submitApplicationProcess.on('submit-application', function (application) {
+  
+  societyclient.sendMessage('A110712');
+});
 
 var app = express();
 app.use(express.static(__dirname + "/public"));
@@ -48,6 +62,7 @@ function handleSucess(res, reason, message, code) {
 
 app.post("/api/v0/notification", function(req, res) {
   var newContact = req.body;
+  var app = req.body.id;
   console.log("POST: ");
   //newContact.createDate = new Date();
   console.log("ID: " + req.body);
@@ -60,8 +75,10 @@ app.post("/api/v0/notification", function(req, res) {
 	  console.log("content: " + req.body.content);
 	  console.log("notificationType: " + req.body.notificationType);
 	  console.log("partnerCode: " + req.body.partnerCode);
+	  //emit sync response
 	  handleSucess(res, "notification done", 201);
-	  //res.status(201).send("Succuss");
+	  //then emit save application to PG
+	  submitApplicationProcess.emit('submit-application', app);
   }
 });
   /*db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
