@@ -43,8 +43,9 @@ function handleError(res, reason, message, code) {
 
 app.post("/api/v0/notification", function(req, res) {
   var newContact = req.body;
-  newContact.createDate = new Date();
-  console.log("ID: " + req.id);
+  console.log("POST: ");
+  //newContact.createDate = new Date();
+  console.log("ID: " + req.body);
   if (!(req.body.id || req.body.content)) {
     handleError(res, "Invalid user input", "Must provide a S1 app ID or content.", 400);
   } else {
