@@ -39,6 +39,11 @@ function handleError(res, reason, message, code) {
   res.status(code || 500).json({"error": message});
 }
 
+// Generic Success handler used by all endpoints.
+function handleSucess(res, reason, message, code) {
+  console.log("SUCCESS: " + reason);
+  res.status(code || 201).json({"success": message});
+}
 
 
 app.post("/api/v0/notification", function(req, res) {
@@ -55,7 +60,7 @@ app.post("/api/v0/notification", function(req, res) {
 	  console.log("content: " + req.body.content);
 	  console.log("notificationType: " + req.body.notificationType);
 	  console.log("partnerCode: " + req.body.partnerCode);
-	  res.status(201);
+	  handleSucess(res, "notification done", 201);
 	  //res.status(201).send("Succuss");
   }
 });
