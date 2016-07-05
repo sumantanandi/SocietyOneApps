@@ -1,8 +1,8 @@
 var express = require("express");
 var path = require("path");
 var bodyParser = require("body-parser");
-var mongodb = require("mongodb");
-var ObjectID = mongodb.ObjectID;
+//var mongodb = require("mongodb");
+//var ObjectID = mongodb.ObjectID;
 
 var CONTACTS_COLLECTION = "contacts";
 
@@ -29,7 +29,7 @@ app.use(bodyParser.json());
     var port = server.address().port;
     console.log("Society one apps now running on port", port);
   });
-});
+
 
 // CONTACTS API ROUTES BELOW
 
@@ -53,7 +53,7 @@ app.post("/api/v0/notification", function(req, res) {
 	  console.log("notificationType: " + req.body.notificationType);
 	  console.log("partnerCode: " + req.body.partnerCode);
   }
-
+});
   /*db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
     if (err) {
       handleError(res, err.message, "Failed to create new contact.");
@@ -61,5 +61,3 @@ app.post("/api/v0/notification", function(req, res) {
       res.status(201).json(doc.ops[0]);
     }
   }); */
-});
-
