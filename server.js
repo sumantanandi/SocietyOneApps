@@ -44,7 +44,7 @@ function handleError(res, reason, message, code) {
 app.post("/api/v0/notification", function(req, res) {
   var newContact = req.body;
   newContact.createDate = new Date();
-
+  console.log("ID: " + req.body.id);
   if (!(req.body.id || req.body.content)) {
     handleError(res, "Invalid user input", "Must provide a S1 app ID or content.", 400);
   } else {
@@ -52,6 +52,7 @@ app.post("/api/v0/notification", function(req, res) {
 	  console.log("content: " + req.body.content);
 	  console.log("notificationType: " + req.body.notificationType);
 	  console.log("partnerCode: " + req.body.partnerCode);
+	  res.status(201);
   }
 });
   /*db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
