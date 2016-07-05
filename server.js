@@ -55,6 +55,7 @@ app.post("/api/v0/notification", function(req, res) {
 	  console.log("content: " + req.body.content);
 	  console.log("notificationType: " + req.body.notificationType);
 	  console.log("partnerCode: " + req.body.partnerCode);
+	  res.status(201);
 	  //res.status(201).send("Succuss");
   }
 });
