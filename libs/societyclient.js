@@ -13,7 +13,8 @@ var body = '';
 var parsed = '';
 var accesstoken = '';
 var bodyforapplication = '';
-var applicationStore = require('./applicationStore');
+//var applicationStore = require('./applicationStore');
+var applicationStore = require('./salesforceConnect');
 //var bodyParser = require('body-parser')
 
 var EventEmitter = require('events').EventEmitter;
@@ -26,9 +27,9 @@ var saveApplication = new EventEmitter();
  * processing status is updated when you are done.
  */
 saveApplication.on('save-application', function (application) {
-  
-  //save application
-  applicationStore.saveApplication(application);
+
+	//save application
+	applicationStore.saveApplication(application);
 });
 
 
@@ -41,51 +42,30 @@ exports.sendMessage = (applicationNumber) => {
 	return new Promise(function (resolve, reject) {
 
 		var postData = querystring.stringify({
-			//'grant_type' : 'client_credentials'
-			'username': 'societyon',
-			'password': 'password99',
+			'client_id': 'mangolatitudeaus',
+			'client_secret': 'password99',
 			'grant_type': 'password',
-			'scope': 'api',
-			'redirect_uri': 'www.google.com'
-		})
-
-		var postData = querystring.stringify({
-			//'grant_type' : 'client_credentials'
-			'username': 'societyon',
+			'username': 'latitudeausfc',
 			'password': 'password99',
-			'grant_type': 'password',
 			'scope': 'api',
-			'redirect_uri': 'www.google.com'
 		})
 
 		var options = {
-			hostname: 'mango-identityservice.clearmatch.local',
+			hostname: 'mango-identityservice.clearmatch.co',
 			path: '/connect/token',
 			method: 'POST',
 			agent: false,
-			//ca: [fs.readFileSync('clearmatch.crt')],
-			//ca: fs.readFileSync('localcert.cer') ,
-			requestCert: true,
+			requestCert: false,
 			rejectUnauthorized: false,
 			strictSSL: false,
-			headers: {
-				'Authorization': 'Basic ' + new Buffer(
-					'mangolatitudeaus' + ":" + 'password99'
-				).toString('base64'),
-
-				//'client_id':'mangolatitudeaus',
-				//'client_secret':'password99',
-				'Content-Type': 'application/x-www-form-urlencoded',
-				//'grant_type':'password',
-				'username': 'societyon',
-				'password': 'password99',
-				//'scope':'api',
-				'Content-Length': postData.length
-			} // headers
 		}
-		//console.log("option ",options);
 
-		var req = https.request(options, function (res) {
+		console.log("option ", options);
+
+		var req = https.request(options, function (res,err) {
+			if (err) {
+				reject(err);
+			}
 			//console.log("option ",options);
 			console.log("statusCode: ", res.statusCode);
 			//console.log("headers: ", res.headers);
@@ -110,14 +90,12 @@ exports.sendMessage = (applicationNumber) => {
 					//call API
 					//));		
 				}		// options for GET
+
+
+
 				var optionsget = {
-					//host : 'clearmatchapi.herokuapp.com', // here only the domain name // (no http/https !)
-					host: 'mango-api.clearmatch.local',
-					//port : 443,
-					//path : '/contacts',
-					path: '/v1/unsecuredLoans/application/' + applicationNumber, //A101318 A084754  A110832 A110712
-					//path : '/v1/{assetclass}/whoami', 
-					appnumber: 'A110843',// the rest of the url with parameters if needed  GET /v1/{assetclass}/whoami A110843 A084754
+					host: 'mango-api.clearmatch.co',
+					path: '/v1/unsecuredLoans/application/A122420', //A101318 A084754  A110832 A110712 A110712
 					method: 'GET', // do GET
 					requestCert: true,
 					rejectUnauthorized: false,
@@ -128,11 +106,9 @@ exports.sendMessage = (applicationNumber) => {
 					}
 
 				};
-
 				//console.info(" PAY LOAD ",optionsget);
 				var reqGet = https.request(optionsget, function (res) {
-					//console.info('Do the GET call ===============%%%% ', access_token);
-					//var jsonParser = bodyParser.json();
+
 					res.on('data', function (d) {
 						bodyforapplication += d;
 					});
