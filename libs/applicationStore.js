@@ -53,9 +53,29 @@ var Application__c = sequelize.define('Application__c', {
         type: Sequelize.STRING,
         field: 'X3rd_Party_Application_Number__c',
     },
-    X3rd_Party_Application_Source__c: {
+    X3rd_Party_Quoted_Risk_Grade__c: {
         type: Sequelize.STRING,
-        field: 'X3rd_Party_Application_Source__c',
+        field: 'X3rd_Party_Quoted_Risk_Grade__c',
+    },
+    X3rd_Party_Quoted_Rate__c: {
+        type: Sequelize.STRING,
+        field: 'X3rd_Party_Quoted_Rate__c',
+    },
+    Brand_Lookup__c: {
+        type: Sequelize.STRING,
+        field: 'Brand_Lookup__c',
+    },
+    Brand_String__c: {
+        type: Sequelize.STRING,
+        field: 'Brand_String__c',
+    },
+    Type_of_Product__c: {
+        type: Sequelize.STRING,
+        field: 'Type_of_Product__c',
+    },
+    Product_Id__c: {
+        type: Sequelize.STRING,
+        field: 'Product_Id__c',
     },
     Response_Code__c: {
         type: Sequelize.STRING,
@@ -295,25 +315,39 @@ exports.saveApplication = (application) => {
 
 
 createApplication = (application) => {
-    console.log('Inside createApplication :');
-    app.Loan_Term_Months__c = 36;
-    app.Loan_Term__c = 3.5;
-    app.Total_Loan_Amount__c = 'Monthly';
+    console.log(' Inside createApplication Object  :');
+    app.Loan_Term_Months__c = application.term;  
+    //Loan Term
+    var loanTerm = {
+      "24": "2 years", 
+      "36": "3 years", 
+      "60": "5 years", 
+    };
+    
+    app.Loan_Term__c = loanTerm[application.term];
+    app.Payment_Frequency__c = application.paymentFrequency;
+    app.Total_Loan_Amount__c = application.originalAmountRequested;
     //app.Loan_Term_Months__c = application.originalAmountRequested;
     app.Application_Type__c = 'Single';
-    app.Channel__c = 'Online';
-    app.Application_Source__c = 'Internet';
-    app.Higher_Approval_Consent__c = 'false';
-    app.Mirror__c = application.field;
-    app.Type_of_Product__c = 'Latitude';
-    app.Branch__c = 'a0AN0000005chwW';
-    app.Business_Source__c = 'THIRD PARTY APPLICATION';
-    app.X3rd_Party_Application_Number__c = 'A110711';
+    app.Channel__c = application.Campaign;
+    app.Application_Source__c = 'INTERNET';
+    app.Higher_Approval_Consent__c = application.optionalDisclaimer2;
+    app.Product_Id__c = 'Latitude';
+    app.Mirror__c = application.sourceOfBusiness;
+    app.Type_of_Product__c = 'Personal Loan';
+    app.Branch__c = 'Central';
+    app.Business_Source__c = 'INTERNET APPLICATION';
+    app.X3rd_Party_Quoted_Risk_Grade__c = application.secondaryCreditRating;
+    app.X3rd_Party_Quoted_Rate__c =  application.interestRate;
+    app.Loan_Term_Months__c = application.term;
+    app.Brand_Lookup__c = 'Latitude';
+    app.Brand_String__c = 'Latitude';
+    app.X3rd_Party_Application_Number__c = 'A110711'; //app.applicationNumber;
     app.X3rd_Party_Application_Source__c = 'Society One';
     app.Response_Code__c = 'SC001';
     app.name = 'A110711';
     console.log('createApplication Operation :(sourceOfBusiness) ===============', application.sourceOfBusiness);
-    console.log('createApplication Operation :(originalAmountRequested) ===============', application.originalAmountRequested);
+    console.log('createApplication Operation :(application.secondaryCreditRating) ===============', application.secondaryCreditRating);
     /*  application.arrObj.forEach(function(element) {
           
       }, this);

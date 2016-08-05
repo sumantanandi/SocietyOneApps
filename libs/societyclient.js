@@ -42,7 +42,7 @@ exports.sendMessage = (applicationNumber) => {
 	return new Promise(function (resolve, reject) {
 
 		var postData = querystring.stringify({
-			'client_id': 'mangolatitudeaus',
+			'client_id': 'uat2latitudeaus',
 			'client_secret': 'password99',
 			'grant_type': 'password',
 			'username': 'latitudeausfc',
@@ -51,7 +51,7 @@ exports.sendMessage = (applicationNumber) => {
 		})
 
 		var options = {
-			hostname: 'mango-identityservice.clearmatch.co',
+			hostname: 'uat2-identityservice.clearmatch.co',
 			path: '/connect/token',
 			method: 'POST',
 			agent: false,
@@ -94,8 +94,8 @@ exports.sendMessage = (applicationNumber) => {
 
 
 				var optionsget = {
-					host: 'mango-api.clearmatch.co',
-					path: '/v1/unsecuredLoans/application/A122420', //A101318 A084754  A110832 A110712 A110712
+					host: 'uat2-api.clearmatch.co',
+					path: '/v1/unsecuredLoans/application/'+applicationNumber, //A130016 A129995  A110832 A110712 A110712
 					method: 'GET', // do GET
 					requestCert: true,
 					rejectUnauthorized: false,
@@ -119,7 +119,7 @@ exports.sendMessage = (applicationNumber) => {
 						//console.info('parsedresponsedata : ', parsedresponsedata);
 						var status = parsedresponsedata.applicationStatus;
 						var applicationNumber = parsedresponsedata.applicationNumber;
-						//console.info('APPLICATION NUMBER  : ', applicationNumber);
+						console.info('APPLICATION NUMBER  : ', applicationNumber);
 						//console.info('STATUS : ', status);
 					});
 
