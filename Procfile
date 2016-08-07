@@ -1,1 +1,1 @@
-web: lib/proximo bundle exec thin start
+web: lib/proximo
