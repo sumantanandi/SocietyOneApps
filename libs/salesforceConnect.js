@@ -64,7 +64,7 @@ createApplication = (application) => {
   app.set('X3rd_Party_Quoted_Risk_Grade__c', application.secondaryCreditRating);
   app.set('X3rd_Party_Quoted_Rate__c', application.interestRate);
   app.set('X3rd_Party_Application_Source__c', 'INTERNET APPLICATION');
-  app.set('X3rd_Party_Application_Number__c', 'A0084'); //application.applicationNumber
+  app.set('X3rd_Party_Application_Number__c', 'A0096'); //application.applicationNumber
   app.set('Loan_Term_Months__c', application.term);
   app.set('Payment_Frequency__c', application.paymentFrequency);
   app.set('Loan_Term_Months__c', application.term);
@@ -371,6 +371,7 @@ createIncome = (application, salesforceApplicantID) => {
     income.set('Income_Source__c', incomeSource);
     income.set('Income_Interval__c', incomeFrequency);
     income.set('Income_Amount__c', incomeAmount);
+     income.set('Total_Income__c', incomeAmount);
     income.set('Emp_Bus_Name__c', application.customerRelationships[0].employment[0].employerName);
     income.set('Emp_Bus_Contact_No__c', application.customerRelationships[0].employment[0].employerPhone);
     income.set('Years_With_Employer__c', application.customerRelationships[0].employment[0].employmentYears);
@@ -599,13 +600,17 @@ function populateStatus(application, oauth, salesforceApplicantID) {
   console.log('debtStatusFlag', debtStatusFlag);
   console.log('expenseStatusFlag', expenseStatusFlag);
   applicationSubmitStatus = nforce.createSObject('X3rd_Party_Application_Status_Log__c');
-  applicationSubmitStatus.set('X3rd_Party_Application_Number__c', 'A0084');
+  applicationSubmitStatus.set('X3rd_Party_Application_Number__c', 'A0096');
   if (applicationStatusFlag && applicantStatusFlag && loanPurposeFlag && incomeStatusFlag && assetStatusFlag && debtStatusFlag && expenseStatusFlag) {
     applicationSubmitStatus.set('Status__c', 'IN000');
+    applicationSubmitStatus.set('Status__Code__c', 'IN000');
     applicationSubmitStatus.set('Status_Message__c', 'S1 Application data insertion completed');
+    console.log('S1 Application data insertion completed');
   } else {
     applicationSubmitStatus.set('Status__c', 'IN001');
+    applicationSubmitStatus.set('Status__Code__c', 'IN001');
     applicationSubmitStatus.set('Status_Message__c', 'Data Insertion Failed');
+    console.log('IN001 : S1 Application data insertion  Failed');
   }
   org.insert({ sobject: applicationSubmitStatus, oauth: oauth }, function (err, resp) {
     if (!err) console.log('It worked !! X3rd_Party_Application_Status_Log__c');
@@ -648,7 +653,11 @@ exports.saveApplication = (application) => {
             insertExpensetData(application, oauth, salesforceApplicantID);
             insertIncomeData(application, oauth, salesforceApplicantID);
             //insertOtherIncomeData(application, oauth, salesforceApplicantID);
-            populateStatus(application, oauth, salesforceApplicantID);
+            //populateStatus(application, oauth, salesforceApplicantID);
+            setTimeout(function () {
+              console.log('Blah blah blah blah extra-blah');
+              populateStatus(application, oauth, salesforceApplicantID);
+            }, 5000);
           }//
           if (err) {
             applicantStatusFlag = false;
@@ -671,8 +680,8 @@ exports.saveApplication = (application) => {
         });
 
         //insertExpensetData(application, oauth, salesforceApplicantID);
-
-
+        //setTimeout(populateStatus(application, oauth, salesforceApplicantID),1000);
+        //populateStatus(application, oauth, salesforceApplicantID);
 
       }
       if (err) {
