@@ -23,7 +23,7 @@ var submitApplicationProcess = new EventEmitter();
  */
 submitApplicationProcess.on('submit-application', function (application) {
   console.log(" submit submitApplicationProcess ", application);
-  societyclient.sendMessage('A110712');
+  societyclient.sendMessage('A130016');
 });
 
 var app = express();
@@ -55,44 +55,48 @@ var server = app.listen(process.env.PORT || 8080, function () {
 fetchBasicAuthFromDatabase = () => {
   var Client = require('pg').Client;
   var client = new Client(process.env.DATABASE_URL);
-  client.connect();
-  pg.connect(process.env.DATABASE_URL, function (err, client) {
-    if (err) throw err;
-    console.log('Connected to postgres! Getting user_authentification table  ...');
+  return new Promise(function (resolve, reject) {
+    client.connect();
+    pg.connect(process.env.DATABASE_URL, function (err, client) {
+      if (err) throw err;
+      console.log('Connected to postgres! Getting user_authentification table  ...');
 
-    client
-      .query('SELECT auth_key,user_name,client_secret  FROM salesforce.user_authentification;')
-      .on('row', function (row) {
-        console.log(JSON.stringify(row));
-        credential.username = row.user_name;
-        credential.client_secret = row.client_secret;
-        console.log("user name ::", credential.username);
-        console.log("pass code ::", credential.client_secret);
-      });
+      client
+        .query('SELECT auth_key,user_name,client_secret  FROM salesforce.user_authentification;')
+        .on('row', function (row) {
+          console.log(JSON.stringify(row));
+          credential.username = row.user_name;
+          credential.client_secret = row.client_secret;
+          console.log("user name ::", credential.username);
+          console.log("pass code ::", credential.client_secret);
+          resolve(credential);
+        });
+    });
   });
-   return credential;
 }
 
 var auth = function (req, res, next) {
   var user = basicAuth(req);
-  var accessToken  =  fetchBasicAuthFromDatabase();
-  console.log("user.name: " ,user.name);
-  console.log("user.pass: " ,user.pass);
-  console.log("credential.username: " ,accessToken.username);
-  console.log("credential.client_secret: " ,accessToken.client_secret);
+  fetchBasicAuthFromDatabase().then(accessToken => {
+    console.log("user.name: ", user.name);
+    console.log("user.pass: ", user.pass);
+    console.log("credential.username: ", accessToken.username);
+    console.log("credential.client_secret: ", accessToken.client_secret);
 
-  if (!user || !user.name || !user.pass) {
-    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-    res.sendStatus(401);
-    return;
-  }
-  if (user.name === 'latitudefs' && user.pass === 'J87lrFHL63Hbjx9RIrc_8p56O-') {
-    next();
-  } else {
-    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-    res.sendStatus(401);
-    return;
-  }
+    if (!user || !user.name || !user.pass) {
+      res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+      res.sendStatus(401);
+      return;
+    }
+    if (user.name == accessToken.username && user.pass == accessToken.client_secret) {
+      console.log("User Authenticated.");
+      next();
+    } else {
+      res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+      res.sendStatus(401);
+      return;
+    }
+  });
 }
 
 
