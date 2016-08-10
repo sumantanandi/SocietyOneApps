@@ -412,7 +412,7 @@ createApplicant = (application, salesforceID) => {
 
       } else if (addressTypeInfo == 'MailingAddress') {
         console.info('MailingAddress  type');
-        postalAddressFlag = 'TRUE';
+        postalAddressFlag = true;
         applicant.set('Postal_Addr_Flg__c', postalAddressFlag);
         applicant.set('Unit_No_Pos__c', address.flatUnitNumber);
         applicant.set('Street_No_Pos__c', address.streetNumber);
