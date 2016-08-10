@@ -46,6 +46,7 @@ function applicationResource(accesstoken, applicationNumber) {
 	};
 
 	function societyoneApplicationService(error, response, body) {
+		console.log(" response ", response);
 		console.log(" response ", response.statusCode);
 		if (!error && response.statusCode == 200) {
 			parsedresponsedata = JSON.parse(body);
