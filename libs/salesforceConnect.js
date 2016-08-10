@@ -66,7 +66,7 @@ createApplication = (application) => {
   app.set('X3rd_Party_Quoted_Risk_Grade__c', application.secondaryCreditRating);
   app.set('X3rd_Party_Quoted_Rate__c', application.interestRate);
   app.set('X3rd_Party_Application_Source__c', 'INTERNET APPLICATION');
-  app.set('X3rd_Party_Application_Number__c', 'A0008'); //application.applicationNumber
+  app.set('X3rd_Party_Application_Number__c', application.applicationNumber); //application.applicationNumber 'A0009'
   app.set('Loan_Term_Months__c', application.term);
   app.set('Payment_Frequency__c', application.paymentFrequency);
   app.set('Loan_Term_Months__c', application.term);
@@ -76,7 +76,7 @@ createApplication = (application) => {
   app.set('Brand_Lookup__c', 'a0f90000003ZwGj');
   app.set('Brand_String__c', 'Latitude');
   app.set('Type_of_Product__c', 'Personal Loan');
-  console.log('createApplication Operation :(sourceOfBusiness) ===============', application.sourceOfBusiness);
+  console.log('createApplication Operation :(applicationNumber) ===============', application.applicationNumber);
   console.log('createApplication Operation :(application.secondaryCreditRating) ===============', application.secondaryCreditRating);
   console.log('createApplication Operation :(application.originalAmountRequested) ===============', application.originalAmountRequested);
   return app;
@@ -798,7 +798,7 @@ function populateStatus(application, oauth, salesforceApplicantID, statusMessage
   console.log('statusMessage', statusMessage);
 
   applicationSubmitStatus = nforce.createSObject('X3rd_Party_Application_Status_Log__c');
-  applicationSubmitStatus.set('X3rd_Party_Application_Number__c', 'A0008');
+  applicationSubmitStatus.set('X3rd_Party_Application_Number__c', application.applicationNumber);
   if (applicationStatusFlag && applicantStatusFlag && loanPurposeFlag && incomeStatusFlag && assetStatusFlag && debtStatusFlag && expenseStatusFlag) {
     applicationSubmitStatus.set('Status__c', 'SUC_001');
     applicationSubmitStatus.set('Status_Code__c', 'SUC_001');
