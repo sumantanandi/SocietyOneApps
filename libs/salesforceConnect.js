@@ -24,6 +24,8 @@ var otherIncomeStatusFlag = true;
 var assetStatusFlag = true;
 var debtStatusFlag = true;
 var expenseStatusFlag = true;
+var statusMessage = '';
+
 
 var org = nforce.createConnection({
   loginUrl: 'https://test.salesforce.com',
@@ -56,26 +58,27 @@ createApplication = (application) => {
 
   app.set('Application_Type__c', 'Single');
   app.set('Higher_Approval_Consent__c', application.optionalDisclaimer2);
-  app.set('Product_Id__c', 'Latitude');
+  app.set('Product_Id__c', 'a0w90000002EplC');
   app.set('Mirror__c', application.sourceOfBusiness);
   app.set('Channel__c', '3rd Party Application');
   app.set('Business_Source__c', 'INTERNET APPLICATION');
-  //app.set('Branch__c', 'a0A9000000NjWJk');
+  app.set('Branch__c', 'a0A9000000NjWJk ');
   app.set('X3rd_Party_Quoted_Risk_Grade__c', application.secondaryCreditRating);
   app.set('X3rd_Party_Quoted_Rate__c', application.interestRate);
   app.set('X3rd_Party_Application_Source__c', 'INTERNET APPLICATION');
-  app.set('X3rd_Party_Application_Number__c', 'A0096'); //application.applicationNumber
+  app.set('X3rd_Party_Application_Number__c', 'A0008'); //application.applicationNumber
   app.set('Loan_Term_Months__c', application.term);
   app.set('Payment_Frequency__c', application.paymentFrequency);
   app.set('Loan_Term_Months__c', application.term);
   app.set('Total_Loan_Amount__c', application.originalAmountRequested);
   app.set('Application_Source__c', 'INTERNET');
-  //app.set('Brand_Lookup__c', 'Latitude');
-
+  app.set('X3rd_Party_Security_Token__c', application.originalAmountRequested)
+  app.set('Brand_Lookup__c', 'a0f90000003ZwGj');
   app.set('Brand_String__c', 'Latitude');
   app.set('Type_of_Product__c', 'Personal Loan');
   console.log('createApplication Operation :(sourceOfBusiness) ===============', application.sourceOfBusiness);
   console.log('createApplication Operation :(application.secondaryCreditRating) ===============', application.secondaryCreditRating);
+  console.log('createApplication Operation :(application.originalAmountRequested) ===============', application.originalAmountRequested);
   return app;
 };
 
@@ -193,6 +196,199 @@ createApplicant = (application, salesforceID) => {
     "Western Australia": "WA",
   };
 
+  var streetType = {
+    "ACC": "Access",
+    "Accs": "Accs",
+    "AL": "Ally",
+    "AWY": "Alleyway",
+    "Ally": "Ally",
+    "AMB": "Amble",
+    "ANC": "Anchorage",
+    "App": "Approach",
+    "Arc": "Arc",
+    "ATY": "Artery",
+    "Ave": "Ave",
+    "BCH": "Beach",
+    "BND": "Bend",
+    "BLK": "Block",
+    "BLV": "Bvd",
+    "BR": "Brce",
+    "BRA": "Brae",
+    "Brce": "Brce",
+    "Brk": "Break",
+    "BRG": "Bridge",
+    "BWY": "Broadway",
+    "BRW": "Brow",
+    "Bvd": "Bvd",
+    "BYW": "Byway",
+    "CWY": "Causeway",
+    "Ctr": "Ctr",
+    "CTW": "Centreway",
+    "Ch": "Ch",
+    "Cir": "Cir",
+    "Clt": "Circlet",
+    "Cct": "Cct",
+    "CRC": "Crcs",
+    "Cl": "Cl",
+    "Cmmn": "Cmmn",
+    "CLD": "Colonnade",
+    "CMN": "Common",
+    "Con": "Con",
+    "CNC": "Con",
+    "Cnr": "Cnr",
+    "CSO": "Cso",
+    "CT": "Ct",
+    "CYD": "Courtyard",
+    "CVE": "Cove",
+    "Cres": "Cres",
+    "CRS": "Cres",
+    "Crst": "Crest",
+    "Crss": "Cross",
+    "CSG": "Crsg",
+    "Crd": "Crossroad",
+    "Crsg": "Crsg",
+    "CSW": "Cruiseway",
+    "Cds": "Cul-De-Sac",
+    "DAL": "Dale",
+    "DVN": "Deviation",
+    "Devn": "Devn",
+    "Dr": "Dr",
+    "DRY": "Driveway",
+    "Drwy": "Drwy",
+    "EGE": "Edge",
+    "Elb": "Elbow",
+    "Link": "Elink",
+    "End": "End",
+    "Ent": "Ent",
+    "Esp": "Esp",
+    "Est": "Estate",
+    "EXT": "Extension",
+    "FAY": "Fairway",
+    "Fawy": "Fawy",
+    "FTL": "Firetrail",
+    "FLT": "Flat",
+    "FSR": "Foreshore",
+    "Fwy": "Fwy",
+    "FRT": "Front",
+    "FR": "Frtg",
+    "Frtg": "Frtg",
+    "Gap": "Gap",
+    "Gdn": "Gdn",
+    "GDS": "Gardens",
+    "Gte": "Gte",
+    "Gdns": "Gdns",
+    "GL": "Gld",
+    "Gld": "Gld",
+    "GLN": "Glen",
+    "Gr": "Gr",
+    "Gra": "Gra",
+    "Grn": "Grn",
+    "GRD": "Grnd",
+    "GVE": "Gr",
+    "Hts": "Hts",
+    "Hwy": "Hwy",
+    "HIL": "Hill",
+    "JN": "Jnc",
+    "Key": "Key",
+    "LDG": "Landing",
+    "LA": "Lane",
+    "LWY": "Laneway",
+    "LEE": "Lees",
+    "Lin": "Line",
+    "Lkt": "Lkt",
+    "LP": "Loop",
+    "LOW": "Lower",
+    "MAL": "Mall",
+    "MDR": "Meander",
+    "Mew": "Mew",
+    "MWS": "Mews",
+    "Mndr": "Mndr",
+    "Mwy": "Motorway",
+    "MT": "Mt",
+    "NK": "Nook",
+    "Otlk": "Otlk",
+    "OUT": "Otlk",
+    "PDE": "Pde",
+    "PRK": "Park",
+    "PWY": "Pkwy",
+    "PRT": "Part",
+    "PSS": "Pass",
+    "PTH": "Path",
+    "Pde": "Pde",
+    "PZA": "Piazza",
+    "Pkwy": "Pkwy",
+    "Pl": "Pl",
+    "PTU": "Plateau",
+    "PLZ": "Plza",
+    "Pkt": "Pocket",
+    "Pnt": "Pnt",
+    "PT": "Port",
+    "Prom": "Prom",
+    "PRM": "Prom",
+    "Qdrt": "Qdrt",
+    "QD": "Qdrt",
+    "Qy": "Qy",
+    "Qys": "Quays",
+    "RA": "Ramble",
+    "Rd": "Rd",
+    "RD E": "RD E",
+    "Rdge": "Rdge",
+    "Rch": "Reach",
+    "Res": "Res",
+    "RST": "Rest",
+    "RT": "Rtt",
+    "RID": "Ride",
+    "RDG": "Rdge",
+    "RDW": "Ridgeway",
+    "RTW": "Rowy",
+    "RNG": "Ring",
+    "RI": "Rise",
+    "Rvr": "River",
+    "Rmbl": "Rmbl",
+    "RD": "Rd",
+    "RDS": "Roads",
+    "RSD": "Roadside",
+    "RDY": "Rdwy",
+    "RDE": "Ronde",
+    "Rnd": "Rnd",
+    "Rte": "Route",
+    "Row": "Row",
+    "Rtt": "Rtt",
+    "Run": "Run",
+    "Swy": "Service Way",
+    "SDG": "Sdng",
+    "SPR": "Spur",
+    "Sq": "Sq",
+    "St": "St",
+    "ST E": "ST E",
+    "ST N": "ST N",
+    "STA": "Stairs",
+    "SHW": "State Highway",
+    "Stra": "Strand",
+    "STR": "St",
+    "STI": "Strip",
+    "Strp": "Strp",
+    "Tce": "Tce",
+    "Top": "Top",
+    "TWR": "Towers",
+    "TR": "Trk",
+    "Trl": "Trail",
+    "Trk": "Trk",
+    "TUR": "Turn",
+    "Upr": "Upper",
+    "VAL": "Vale",
+    "VW": "View",
+    "Vlls": "Villas",
+    "VST": "Vista",
+    "Vsta": "Vsta",
+    "WK": "Walk",
+    "WKY": "Wkwy",
+    "Way": "Way",
+    "WF": "Wharf",
+    "WND": "Wynd",
+    "YRD": "Yard"
+  };
+
   var noOfAddress = application.customerRelationships[0].addresses;
   var postalAddressFlag = false;
   applicant.set('Postal_Addr_Flg__c', postalAddressFlag);
@@ -206,7 +402,7 @@ createApplicant = (application, salesforceID) => {
         applicant.set('Unit_No_Res__c', address.flatUnitNumber);
         applicant.set('Street_No_Res__c', address.streetNumber);
         applicant.set('Street_Res__c', address.streetName);
-        applicant.set('Street_Type_Res__c', address.streetType);
+        applicant.set('Street_Type_Res__c', streetType[address.streetType]);
         applicant.set('Suburb_Res__c', address.suburb);
         applicant.set('Postcode_Res__c', address.postCode);
         applicant.set('Country_Res__c', 'Australia');
@@ -221,7 +417,7 @@ createApplicant = (application, salesforceID) => {
         applicant.set('Unit_No_Pos__c', address.flatUnitNumber);
         applicant.set('Street_No_Pos__c', address.streetNumber);
         applicant.set('Street_Pos__c', address.streetName);
-        applicant.set('Street_Type_Pos__c', address.streetType);
+        applicant.set('Street_Type_Pos__c', streetType[address.streetType]);
         applicant.set('Suburb_Pos__c', address.suburb);
         applicant.set('Postcode_Pos__c', address.postCode);
         applicant.set('Country_Pos__c', 'Australia');
@@ -232,7 +428,7 @@ createApplicant = (application, salesforceID) => {
         applicant.set('Unit_No_Pre__c', address.flatUnitNumber);
         applicant.set('Street_No_Pre__c', address.streetNumber);
         applicant.set('Street_Pre__c', address.streetName);
-        applicant.set('Street_Type_Pre__c', address.streetType);
+        applicant.set('Street_Type_Pre__c', streetType[address.streetType]);
         applicant.set('Suburb_Pre__c', address.suburb);
         applicant.set('Postcode_Pre__c', address.postCode);
         applicant.set('Country_Pre__c', 'Australia');
@@ -371,7 +567,7 @@ createIncome = (application, salesforceApplicantID) => {
     income.set('Income_Source__c', incomeSource);
     income.set('Income_Interval__c', incomeFrequency);
     income.set('Income_Amount__c', incomeAmount);
-     income.set('Total_Income__c', incomeAmount);
+    income.set('Total_Income__c', incomeAmount);
     income.set('Emp_Bus_Name__c', application.customerRelationships[0].employment[0].employerName);
     income.set('Emp_Bus_Contact_No__c', application.customerRelationships[0].employment[0].employerPhone);
     income.set('Years_With_Employer__c', application.customerRelationships[0].employment[0].employmentYears);
@@ -589,7 +785,7 @@ function insertIncomeData(application, oauth, salesforceApplicantID) {
   });
 }
 
-function populateStatus(application, oauth, salesforceApplicantID) {
+function populateStatus(application, oauth, salesforceApplicantID, statusMessage) {
   var applicationSubmitStatus = {};
   //otherIncomeStatusFlag incomeStatusFlag
   console.log('applicationStatusFlag', applicationStatusFlag);
@@ -599,18 +795,20 @@ function populateStatus(application, oauth, salesforceApplicantID) {
   console.log('assetStatusFlag', assetStatusFlag);
   console.log('debtStatusFlag', debtStatusFlag);
   console.log('expenseStatusFlag', expenseStatusFlag);
+  console.log('statusMessage', statusMessage);
+
   applicationSubmitStatus = nforce.createSObject('X3rd_Party_Application_Status_Log__c');
-  applicationSubmitStatus.set('X3rd_Party_Application_Number__c', 'A0096');
+  applicationSubmitStatus.set('X3rd_Party_Application_Number__c', 'A0008');
   if (applicationStatusFlag && applicantStatusFlag && loanPurposeFlag && incomeStatusFlag && assetStatusFlag && debtStatusFlag && expenseStatusFlag) {
-    applicationSubmitStatus.set('Status__c', 'IN000');
-    applicationSubmitStatus.set('Status__Code__c', 'IN000');
-    applicationSubmitStatus.set('Status_Message__c', 'S1 Application data insertion completed');
+    applicationSubmitStatus.set('Status__c', 'SUC_001');
+    applicationSubmitStatus.set('Status_Code__c', 'SUC_001');
+    applicationSubmitStatus.set('Status_Message__c', 'S1 Application :Application and Child create successful');
     console.log('S1 Application data insertion completed');
   } else {
-    applicationSubmitStatus.set('Status__c', 'IN001');
-    applicationSubmitStatus.set('Status__Code__c', 'IN001');
-    applicationSubmitStatus.set('Status_Message__c', 'Data Insertion Failed');
-    console.log('IN001 : S1 Application data insertion  Failed');
+    applicationSubmitStatus.set('Status__c', 'ERR_002');
+    applicationSubmitStatus.set('Status_Code__c', 'ERR_002');
+    applicationSubmitStatus.set('Status_Message__c', statusMessage);
+    console.log('ERR_002 : S1 Application data insertion  Failed');
   }
   org.insert({ sobject: applicationSubmitStatus, oauth: oauth }, function (err, resp) {
     if (!err) console.log('It worked !! X3rd_Party_Application_Status_Log__c');
@@ -656,12 +854,15 @@ exports.saveApplication = (application) => {
             //populateStatus(application, oauth, salesforceApplicantID);
             setTimeout(function () {
               console.log('Blah blah blah blah extra-blah');
-              populateStatus(application, oauth, salesforceApplicantID);
+              populateStatus(application, oauth, salesforceApplicantID, statusMessage);
             }, 5000);
           }//
           if (err) {
             applicantStatusFlag = false;
             console.log('ERROR MESSAGE :Applicant__c ', err);
+            statusMessage = err.message;
+            populateStatus(application, oauth, salesforceApplicantID, statusMessage);
+            console.log(" STATUS MESSAGE :: ", err.message);
           }
 
         });
@@ -686,7 +887,10 @@ exports.saveApplication = (application) => {
       }
       if (err) {
         applicationStatusFlag = false;
+        statusMessage = err.message;
+        populateStatus(application, oauth, salesforceApplicantID, statusMessage);
         console.log('ERROR MESSAGE ', err);
+        console.log(" STATUS MESSAGE :: ", err.message);
       }
 
     });
