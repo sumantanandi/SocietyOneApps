@@ -23,7 +23,7 @@ var submitApplicationProcess = new EventEmitter();
  */
 submitApplicationProcess.on('submit-application', function (application) {
   console.log(" submit submitApplicationProcess ", application);
-  societyclient.sendMessage('A130016');
+  societyclient.sendMessage(application); //A131909 A130016
 });
 
 var app = express();
