@@ -61,7 +61,7 @@ createApplication = (application) => {
   app.set('Product_Id__c', 'a0w90000002EplC');
   app.set('Mirror__c', application.sourceOfBusiness);
   app.set('Channel__c', '3rd Party Application');
-  app.set('Business_Source__c', 'INTERNET APPLICATION');
+  app.set('Business_Source__c', 'SocietyOne');
   app.set('Branch__c', 'a0A9000000NjWJk ');
   app.set('X3rd_Party_Quoted_Risk_Grade__c', application.secondaryCreditRating);
   app.set('X3rd_Party_Quoted_Rate__c', application.interestRate);
