@@ -2,8 +2,8 @@
 var nforce = require('nforce');
 var truncate = require('truncate');
 var dateFormat = require('dateformat');
-var username = '502083718@lfs.com.orignzqa';
-var password = 'Pa55word';
+var username = 'gewsprod@ge.com.orig.orignzqa' //502083718@lfs.com.orignzqa';
+var password = 'rdss@1234KFLKuatCMksPO4Wxr8m6oAlf';
 
 var app = {};
 var applicant = {};
@@ -59,9 +59,9 @@ createApplication = (application) => {
   app.set('Application_Type__c', 'Single');
   app.set('Higher_Approval_Consent__c', application.optionalDisclaimer2);
   app.set('Product_Id__c', 'a0w90000002EplC');
-  app.set('Mirror__c', application.sourceOfBusiness);
+  app.set('Mirror__c', 'Society One');
   app.set('Channel__c', '3rd Party Application');
-  app.set('Business_Source__c', 'SocietyOne');
+  app.set('Business_Source__c', 'INTERNET APPLICATION');
   app.set('Branch__c', 'a0A9000000NjWJk ');
   app.set('X3rd_Party_Quoted_Risk_Grade__c', application.secondaryCreditRating);
   app.set('X3rd_Party_Quoted_Rate__c', application.interestRate);
@@ -72,7 +72,8 @@ createApplication = (application) => {
   app.set('Loan_Term_Months__c', application.term);
   app.set('Total_Loan_Amount__c', application.originalAmountRequested);
   app.set('Application_Source__c', 'INTERNET');
-  app.set('X3rd_Party_Security_Token__c', application.originalAmountRequested)
+  app.set('X3rd_Party_Security_Token__c', application.originalAmountRequested);
+  app.set('X3rd_Party_Application_Source__c','Society One');
   app.set('Brand_Lookup__c', 'a0f90000003ZwGj');
   app.set('Brand_String__c', 'Latitude');
   app.set('Type_of_Product__c', 'Personal Loan');
@@ -94,7 +95,8 @@ createLoanPurpose = (application, salesforceID) => {
     "Holiday": "Travel/Holiday",
     "Wedding": "Other",
     "Retail Finance": "Other",
-    "Major Purchase": "Other"
+    "Major Purchase": "Other",
+    "Home Improvement Loan" : "Home Improvement Loan"
   };
 
   var loanDesc = {
@@ -133,6 +135,7 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Agrees_to_Fees__c', true);
   applicant.set('Agrees_to_Privacy_Policy__c', true);
   applicant.set('EIDV__c', application.optionalDisclaimer1);
+  console.log(" EIDV CONSENT ",application.optionalDisclaimer1);
   var titleDesc = {
     "Sir": "Mr",
     "Prof.": "Mr",
@@ -152,10 +155,13 @@ createApplicant = (application, salesforceID) => {
   var dob = dateFormat(application.customerRelationships[0].dateOfBirth, "dd-mm-yyyy");
   console.log(' application date of birth ||||| Before transform  ', application.customerRelationships[0].dateOfBirth);
   console.log(' application date of birth ||||| After  transform  ', dob);
+  applicant.set('Date_of_Birth__c ',dob);
   applicant.set('Rel_Status__c', application.customerRelationships[0].maritalStatus);
   applicant.set('No_of_Deps__c', application.customerRelationships[0].dependents);
   var driverLicense = truncate(application.customerRelationships[0].driversLicense, 10);
+  console.log(" No of Dependent : =====",application.customerRelationships[0].dependents);
   console.log(' application driverLicense ||||| After  trancute  ', driverLicense);
+  console.log('application.customerRelationships[0].gender',application.customerRelationships[0].gender);
   var driverLicenseFlag = false;
   if (driverLicense) {
     driverLicenseFlag = true;
@@ -497,7 +503,9 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Accept_Terms_and_Conditions__c', true);
 
   var dobWebService = dateFormat(application.customerRelationships[0].dateOfBirth, "yyyy-mm-dd");
+  var dobWebServiceDocGen = dateFormat(application.customerRelationships[0].dateOfBirth, "dd/mm/yyyy");
   applicant.set('Date_of_Birth_WS__c', dobWebService);
+  applicant.set('Date_of_Birth_Doc_Gen__c ',dobWebServiceDocGen)
   var homePhoneNo = application.customerRelationships[0].homePhoneContact;
   var homePhoneNoAreaCode = application.customerRelationships[0].homePhoneContact;
   var workPhoneNo = application.customerRelationships[0].workPhoneContact;
