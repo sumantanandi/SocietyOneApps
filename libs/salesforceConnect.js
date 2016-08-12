@@ -89,8 +89,8 @@ createLoanPurpose = (application, salesforceID) => {
   loanPurpose = nforce.createSObject('Loan_Purpose__c');
 
   var loanType = {
-    "Buy or refinance a vehicle": "Car Purchase",
-    "Pay off credit cards or loans": "Debt consolidation",
+    "Buy or Refinance a Vehicle": "Car Purchase",
+    "Pay Off Credit Cards or loans": "Debt consolidation",
     "Education Expenses": "Educational expenses",
     "Holiday": "Travel/Holiday",
     "Wedding": "Other",
