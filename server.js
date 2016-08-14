@@ -2,17 +2,16 @@
 var express = require("express");
 var path = require("path");
 var bodyParser = require("body-parser");
-process.env.DATABASE_URL = 'postgres://ythaatkhclsrbf:dpb30mSasjoou_bWUS2WeKjt0q@ec2-54-225-195-254.compute-1.amazonaws.com:5432/delv202g5ov939';
-//var mongodb = require("mongodb");
-//var ObjectID = mongodb.ObjectID;
+var config = require('./config/config.js');
+var connectionURL = process.env.DATABASE_URL || 'postgres://ythaatkhclsrbf:dpb30mSasjoou_bWUS2WeKjt0q@ec2-54-225-195-254.compute-1.amazonaws.com:5432/delv202g5ov939';
+//process.env.DATABASE_URL = 'postgres://ythaatkhclsrbf:dpb30mSasjoou_bWUS2WeKjt0q@ec2-54-225-195-254.compute-1.amazonaws.com:5432/delv202g5ov939';
 var pg = require('pg');
 pg.defaults.ssl = true;
 
-var CONTACTS_COLLECTION = "contacts";
 var EventEmitter = require('events').EventEmitter;
 var societyclient = require('./libs/societyclient');
 var credential = require('./model/Credential');
-var fetchBasicAuthFromDatabase ={};
+var fetchBasicAuthFromDatabase = {};
 
 // When we submit an appication it can take a long time
 var submitApplicationProcess = new EventEmitter();
@@ -31,36 +30,25 @@ var basicAuth = require('basic-auth');
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 
-// Create a database variable outside of the database connection callback to reuse the connection pool in your app.
-//var db;
-
-// Connect to the database before starting the application server. 
-/*mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
-  if (err) {
-    console.log(err);
-    process.exit(1);
-  }
-*/
-// Save database object from the callback for reuse.
-// db = database;
-//console.log("Database connection ready");
-
 // Initialize the app.
 var server = app.listen(process.env.PORT || 8080, function () {
   var port = server.address().port;
   console.log("Society one apps now running on port", port);
 });
 
-
+// Validate Basic Authenticatation details for Database
 fetchBasicAuthFromDatabase = () => {
   var Client = require('pg').Client;
-  var client = new Client(process.env.DATABASE_URL);
+  var client = new Client(connectionURL);
   return new Promise(function (resolve, reject) {
     client.connect();
-    pg.connect(process.env.DATABASE_URL, function (err, client) {
-      if (err) throw err;
+    pg.connect(connectionURL, function (err, client) {
+      if (err) {
+        reject(err);
+        console.log('Connection to postgres! Failed to Connect database  ...',err);
+        //throw err;
+      }
       console.log('Connected to postgres! Getting user_authentification table  ...');
-
       client
         .query('SELECT auth_key,user_name,client_secret  FROM salesforce.user_authentification;')
         .on('row', function (row) {
@@ -78,6 +66,7 @@ fetchBasicAuthFromDatabase = () => {
 var auth = function (req, res, next) {
   var user = basicAuth(req);
   fetchBasicAuthFromDatabase().then(accessToken => {
+    //console.log("config.Level: ", config.label);
     console.log("user.name: ", user.name);
     console.log("user.pass: ", user.pass);
     console.log("credential.username: ", accessToken.username);
@@ -99,9 +88,6 @@ var auth = function (req, res, next) {
   });
 }
 
-
-// CONTACTS API ROUTES BELOW
-
 // Generic error handler used by all endpoints.
 function handleError(res, reason, message, code) {
   console.log("ERROR: " + reason);
@@ -118,7 +104,8 @@ function handleSucess(res, reason, message, code) {
 app.post("/api/v0/notification", auth, function (req, res) {
   var newContact = req.body;
   var app = req.body.id;
-  console.log("POST: ");
+  var content = req.body.content;
+  console.log("Society One Application Notification Received:",app);
   //newContact.createDate = new Date();
   console.log("ID: " + req.body);
   //console.log(req.headers['content-type']);

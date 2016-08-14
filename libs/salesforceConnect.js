@@ -73,7 +73,7 @@ createApplication = (application) => {
   app.set('Total_Loan_Amount__c', application.originalAmountRequested);
   app.set('Application_Source__c', 'INTERNET');
   app.set('X3rd_Party_Security_Token__c', application.originalAmountRequested);
-  app.set('X3rd_Party_Application_Source__c','Society One');
+  app.set('X3rd_Party_Application_Source__c', 'Society One');
   app.set('Brand_Lookup__c', 'a0f90000003ZwGj');
   app.set('Brand_String__c', 'Latitude');
   app.set('Type_of_Product__c', 'Personal Loan');
@@ -96,7 +96,7 @@ createLoanPurpose = (application, salesforceID) => {
     "Wedding": "Other",
     "Retail Finance": "Other",
     "Major Purchase": "Other",
-    "Home Improvement Loan" : "Home Improvement Loan"
+    "Home Improvement Loan": "Home Improvement Loan"
   };
 
   var loanDesc = {
@@ -135,7 +135,7 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Agrees_to_Fees__c', true);
   applicant.set('Agrees_to_Privacy_Policy__c', true);
   applicant.set('EIDV__c', application.optionalDisclaimer1);
-  console.log(" EIDV CONSENT ",application.optionalDisclaimer1);
+  console.log(" EIDV CONSENT ", application.optionalDisclaimer1);
   var titleDesc = {
     "Sir": "Mr",
     "Prof.": "Mr",
@@ -155,13 +155,13 @@ createApplicant = (application, salesforceID) => {
   var dob = dateFormat(application.customerRelationships[0].dateOfBirth, "dd-mm-yyyy");
   console.log(' application date of birth ||||| Before transform  ', application.customerRelationships[0].dateOfBirth);
   console.log(' application date of birth ||||| After  transform  ', dob);
-  applicant.set('Date_of_Birth__c ',dob);
+  applicant.set('Date_of_Birth__c', dob);
   applicant.set('Rel_Status__c', application.customerRelationships[0].maritalStatus);
   applicant.set('No_of_Deps__c', application.customerRelationships[0].dependents);
   var driverLicense = truncate(application.customerRelationships[0].driversLicense, 10);
-  console.log(" No of Dependent : =====",application.customerRelationships[0].dependents);
+  console.log(" No of Dependent : =====", application.customerRelationships[0].dependents);
   console.log(' application driverLicense ||||| After  trancute  ', driverLicense);
-  console.log('application.customerRelationships[0].gender',application.customerRelationships[0].gender);
+  console.log('application.customerRelationships[0].gender', application.customerRelationships[0].gender);
   var driverLicenseFlag = false;
   if (driverLicense) {
     driverLicenseFlag = true;
@@ -505,7 +505,7 @@ createApplicant = (application, salesforceID) => {
   var dobWebService = dateFormat(application.customerRelationships[0].dateOfBirth, "yyyy-mm-dd");
   var dobWebServiceDocGen = dateFormat(application.customerRelationships[0].dateOfBirth, "dd/mm/yyyy");
   applicant.set('Date_of_Birth_WS__c', dobWebService);
-  applicant.set('Date_of_Birth_Doc_Gen__c ',dobWebServiceDocGen)
+  applicant.set('Date_of_Birth_Doc_Gen__c', dobWebServiceDocGen)
   var homePhoneNo = application.customerRelationships[0].homePhoneContact;
   var homePhoneNoAreaCode = application.customerRelationships[0].homePhoneContact;
   var workPhoneNo = application.customerRelationships[0].workPhoneContact;
@@ -543,7 +543,7 @@ createIncome = (application, salesforceApplicantID) => {
   income = nforce.createSObject('Income__c');
   var incomeSourceList = {
     "Full Time": "My permanent - full time job",
-    "Part time": "My permanent - part time job",
+    "Part Time": "My permanent - part time job",
     "Casual": "My casual/temporary job",
     "Contract": "My contracting job",
     "Seasonal": "My seasonal job",
@@ -588,19 +588,23 @@ createIncome = (application, salesforceApplicantID) => {
   return income;
 };
 
-/* Create Primary Income Object */
-createOtherIncome = (application, salesforceID) => {
+/* Create Other Income Object */
+createOtherIncome = (application, salesforceApplicantID) => {
+  console.log(' Inside Otehr Income  Object  :', salesforceApplicantID);
   var otherIncome = [];
-  console.log('Inside Other createIncome Object  :', salesforceID)
-  otherIncome = nforce.createSObject('Income__c');
   var incomeSourceList = {
     "Full Time": "My permanent - full time job",
-    "Part time": "My permanent - part time job",
-    "casual": "My casual/temporary job",
-    "contract": "My contracting job",
-    "seasonal": "My seasonal job",
-    "self-employed": "My self-employed business",
-    "pension/govt": "My pension",
+    "Part Time": "My permanent - part time job",
+    "Temporary":"My casual/temporary job",
+    "Casual": "My casual/temporary job",
+    "Contract": "My contracting job",
+    "Seasonal": "My seasonal job",
+    "Self Employed": "My self-employed business",
+    "Pension": "My pension",
+    "Workers Compensation":"My workers compensation",
+    "Rental":"My rental property",
+    "Child Support":"My child support",
+    "Other":"My other source of income"
   };
   var incomeFrequency = {
     "Weekly": "Week",
@@ -610,15 +614,27 @@ createOtherIncome = (application, salesforceID) => {
   };
 
   if (application.otherIncome) {
-    application.otherIncome.forEach(function (otherIncome) {
-      var otherIncomeData = "";
-      otherIncomeData.set('Emp_Bus_Name__c', application.customerRelationships[0].otherIncome[0].employerName);
-      otherIncomeData.set('Emp_Bus_Contact_No__c', application.customerRelationships[0].otherIncome[0].employerPhone);
-      otherIncomeData.set('Years_With_Employer__c', application.customerRelationships[0].otherIncome[0].employmentYears);
-      otherIncomeData.set('Months_With_Employer__c', application.customerRelationships[0].otherIncome[0].employmentMonths);
-      otherIncomeData.set('Occupation__c', application.customerRelationships[0].otherIncome[0].industry);
-      otherIncomeData.set('Application__c', salesforceID);
-      otherIncome.push(otherIncomeData);
+    application.otherIncome.forEach(function (otherIncomeObject) {
+      var sfIncomeOther = nforce.createSObject('Income__c');
+      sfIncomeOther.set('Income_Source__c', incomeSourceList[otherIncomeObject.otherIncomeSource]);
+      sfIncomeOther.set('Income_Interval__c', incomeFrequency[otherIncomeObject.otherIncomeFrequency]);
+      var otherIncomeAmount = otherIncomeObject.otherAnnualIncomeAfterTax;//"10000.00"; 
+      if (otherIncomeObject.otherIncomeFrequency == 'Monthly') {
+        otherIncomeAmount = otherIncomeAmount / 12;
+      } else if (otherIncomeObject.otherIncomeFrequency == 'Fortnightly') {
+        otherIncomeAmount = otherIncomeAmount / 26;
+      } else if (otherIncomeObject.otherIncomeFrequency == 'Weekly') {
+        otherIncomeAmount = otherIncomeAmount / 52;
+      }
+      sfIncomeOther.set('Income_Amount__c', otherIncomeAmount);
+      sfIncomeOther.set('Total_Income__c', otherIncomeAmount);
+      sfIncomeOther.set('Emp_Bus_Name__c', otherIncomeObject.employerName);
+      sfIncomeOther.set('Emp_Bus_Contact_No__c', otherIncomeObject.employerPhone);
+      sfIncomeOther.set('Years_With_Employer__c', otherIncomeObject.employerYear);
+      sfIncomeOther.set('Months_With_Employer__c', otherIncomeObject.employerMonth);
+      sfIncomeOther.set('Occupation__c', otherIncomeObject.industry);
+      sfIncomeOther.set('Applicant__c', salesforceApplicantID);
+      otherIncome.push(sfIncomeOther);
     }, this);
   }
   return otherIncome;
@@ -793,6 +809,23 @@ function insertIncomeData(application, oauth, salesforceApplicantID) {
   });
 }
 
+function insertOtherIncomeData(application, oauth, salesforceApplicantID) {
+  //add Other Income 
+  otherIncome = createOtherIncome(application, salesforceApplicantID);
+  if (otherIncome) {
+    // salesforceID = resp.id;
+    otherIncome.forEach(function (otherIncomeRecord) {
+      org.insert({ sobject: otherIncomeRecord, oauth: oauth }, function (err, resp) {
+        if (!err) console.log('It worked (Other Income Object )!! Income__c');
+        if (err) {
+          otherIncomeStatusFlag = false;
+          console.log('ERROR MESSAGE :Income__c', err);
+        }
+      });
+    });
+  }
+}
+
 function populateStatus(application, oauth, salesforceApplicantID, statusMessage) {
   var applicationSubmitStatus = {};
   //otherIncomeStatusFlag incomeStatusFlag
@@ -800,6 +833,7 @@ function populateStatus(application, oauth, salesforceApplicantID, statusMessage
   console.log('applicantStatusFlag', applicantStatusFlag);
   console.log('loanPurposeFlag', loanPurposeFlag);
   console.log('incomeStatusFlag', incomeStatusFlag);
+  console.log('otherIncomeStatusFlag', otherIncomeStatusFlag);
   console.log('assetStatusFlag', assetStatusFlag);
   console.log('debtStatusFlag', debtStatusFlag);
   console.log('expenseStatusFlag', expenseStatusFlag);
@@ -830,8 +864,6 @@ function populateStatus(application, oauth, salesforceApplicantID, statusMessage
 
 exports.saveApplication = (application) => {
   //populateData(application);
-
-
   var salesforceID = '';
   var salesforceApplicantID = "";
   org.authenticate({ username: username, password: password }, function (err, resp) {
@@ -858,10 +890,10 @@ exports.saveApplication = (application) => {
             insertDebtData(application, oauth, salesforceApplicantID);
             insertExpensetData(application, oauth, salesforceApplicantID);
             insertIncomeData(application, oauth, salesforceApplicantID);
-            //insertOtherIncomeData(application, oauth, salesforceApplicantID);
+            insertOtherIncomeData(application, oauth, salesforceApplicantID);
             //populateStatus(application, oauth, salesforceApplicantID);
             setTimeout(function () {
-              console.log('Blah blah blah blah extra-blah');
+              console.log('Populate Salesforce Application Status Log');
               populateStatus(application, oauth, salesforceApplicantID, statusMessage);
             }, 5000);
           }//
@@ -874,8 +906,6 @@ exports.saveApplication = (application) => {
           }
 
         });
-
-
         loanPurpose = createLoanPurpose(application, salesforceID);
         org.insert({ sobject: loanPurpose, oauth: oauth }, function (err, resp) {
           if (!err) {
@@ -887,11 +917,6 @@ exports.saveApplication = (application) => {
           }
 
         });
-
-        //insertExpensetData(application, oauth, salesforceApplicantID);
-        //setTimeout(populateStatus(application, oauth, salesforceApplicantID),1000);
-        //populateStatus(application, oauth, salesforceApplicantID);
-
       }
       if (err) {
         applicationStatusFlag = false;
@@ -904,6 +929,4 @@ exports.saveApplication = (application) => {
     });
 
   });
-
-
 }

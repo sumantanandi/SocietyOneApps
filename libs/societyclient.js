@@ -1,8 +1,9 @@
 'use strict';
 
+var mockEnabled = process.env.MOCK_ENABLED || 'yes';
 var request = require("request");
 var https = require('https');
-//var testoauth = require('./testoauth');
+var config = require('../config/config.js');
 var clienttokens = '';
 var parsedresponsedata = '';
 var responsedata = '';
@@ -16,6 +17,7 @@ var bodyforapplication = '';
 //var applicationStore = require('./applicationStore');
 var applicationStore = require('./salesforceConnect');
 //var bodyParser = require('body-parser')
+var applicationResourceURL = '';
 var quotaguardstaticURL = process.env.QUOTAGUARDSTATIC_URL = 'http://quotaguard6398:fe41e4de067b@us-east-static-01.quotaguard.com:9293';
 var EventEmitter = require('events').EventEmitter;
 
@@ -31,13 +33,21 @@ saveApplication.on('save-application', function (application) {
 	applicationStore.saveApplication(application);
 });
 
-
+//mockEnabled
 function applicationResource(accesstoken, applicationNumber) {
 	console.log(" Access Token Inside Application Resource API Call ", accesstoken);
 	console.log(" Application Number Inside Application Resource API Call ", applicationNumber);
+	if (mockEnabled == 'yes') {
+		applicationResourceURL = 'http://www.mocky.io/v2/'+applicationNumber;
+	} else {
+		applicationResourceURL = 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/'+applicationNumber;
+	}
+	conssole.log(" applicationResourceURL ======= ",applicationResourceURL);
     var optionsget = {
 		proxy: quotaguardstaticURL,
-		url: 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/' + applicationNumber,
+		//url: 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/' + applicationNumber,
+		//url: 'http://www.mocky.io/v2/' + applicationNumber,
+		url:applicationResourceURL,
 		method: 'GET',
 		headers: {
 			'Authorization': 'Bearer ' + accesstoken,
