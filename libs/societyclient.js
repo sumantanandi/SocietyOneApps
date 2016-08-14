@@ -42,7 +42,7 @@ function applicationResource(accesstoken, applicationNumber) {
 	} else {
 		applicationResourceURL = 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/'+applicationNumber;
 	}
-	conssole.log(" applicationResourceURL ======= ",applicationResourceURL);
+	console.log(" applicationResourceURL ======= ",applicationResourceURL);
     var optionsget = {
 		proxy: quotaguardstaticURL,
 		//url: 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/' + applicationNumber,
