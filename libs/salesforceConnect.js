@@ -186,9 +186,10 @@ createApplicant = (application, salesforceID) => {
   }
 
   var emailAddress = application.customerRelationships[0].emailContact;
-  if (emailAddress > 40) {
+  if (emailAddress.length > 40) {
     emailAddress = '';
   }
+  console.log("EMAIL ADDRESSS FIELD ",emailAddress);
   applicant.set('Email_Address__c', emailAddress);
 
   var stateDesc = {
@@ -395,6 +396,14 @@ createApplicant = (application, salesforceID) => {
     "YRD": "Yard"
   };
 
+  var residentialStatus = {
+    "Renting": "Renting",
+    "Living With Parents": "Boarding with Parents",
+    "Mortgage": "Own a home with a mortgage",
+    "Freehold": "Own a home outright",
+    "Boarding": "Boarding Other",
+  };
+
   var noOfAddress = application.customerRelationships[0].addresses;
   var postalAddressFlag = false;
   applicant.set('Postal_Addr_Flg__c', postalAddressFlag);
@@ -415,7 +424,7 @@ createApplicant = (application, salesforceID) => {
         applicant.set('State_Res__c', stateDesc[address.state]);
         applicant.set('Years_At_Addr__c', address.years);
         applicant.set('Months_At_Addr__c', address.months);
-
+        applicant.set('Res_Status__c', residentialStatus[address.typeOfResidence]);
       } else if (addressTypeInfo == 'MailingAddress') {
         console.info('MailingAddress  type');
         postalAddressFlag = true;
@@ -474,18 +483,12 @@ createApplicant = (application, salesforceID) => {
     }, this);
   }
 
-  var residentialStatus = {
-    "Renting": "Renting",
-    "Living With Parents": "Boarding with Parents",
-    "Mortgage": "Own a home with a mortgage",
-    "Freehold": "Own a home outright",
-    "Boarding": "Boarding Other",
-  };
 
-  var addressTypeResidence = application.customerRelationships[0].addresses.typeOfResidence;
-  if (application.customerRelationships[0].addresses.addressType == 'CurrentAddress') {
-    applicant.set('Res_Status__c', residentialStatus[addressTypeResidence]);
-  }
+
+  /* var addressTypeResidence = application.customerRelationships[0].addresses.typeOfResidence;
+   if (application.customerRelationships[0].addresses.addressType == 'CurrentAddress') {
+     applicant.set('Res_Status__c', residentialStatus[addressTypeResidence]);
+   }*/
   var securities = application.securities
   var debts = application.debts
   if (securities) {
@@ -571,6 +574,7 @@ createIncome = (application, salesforceApplicantID) => {
   console.log(' Employment Type ||||| ', employmentType);
   console.log(' Income Source ||||| ', incomeSource);
   console.log(' Income incomeAmount ||||| ', incomeAmount);
+  console.log(" INDUSTRY ",application.customerRelationships[0].industry);
   if (employmentType == 'CurrentEmployment') {
     income.set('Income_Source__c', incomeSource);
     income.set('Income_Interval__c', incomeFrequency);
@@ -595,16 +599,16 @@ createOtherIncome = (application, salesforceApplicantID) => {
   var incomeSourceList = {
     "Full Time": "My permanent - full time job",
     "Part Time": "My permanent - part time job",
-    "Temporary":"My casual/temporary job",
+    "Temporary": "My casual/temporary job",
     "Casual": "My casual/temporary job",
     "Contract": "My contracting job",
     "Seasonal": "My seasonal job",
     "Self Employed": "My self-employed business",
     "Pension": "My pension",
-    "Workers Compensation":"My workers compensation",
-    "Rental":"My rental property",
-    "Child Support":"My child support",
-    "Other":"My other source of income"
+    "Workers Compensation": "My workers compensation",
+    "Rental": "My rental property",
+    "Child Support": "My child support",
+    "Other": "My other source of income"
   };
   var incomeFrequency = {
     "Weekly": "Week",
@@ -655,11 +659,11 @@ createExpense = (application, salesforceApplicantID) => {
     sfExpense.set('Rent_Board_Pay_Amt__c', expenseDetails.homeMortgageOrRent);
     var addressTypeInfo = application.customerRelationships[0].addresses[0].addressType;
     if (addressTypeInfo == 'CurrentAddress') {
-      sfExpense.set('Agent_Landlord_Name__c', application.customerRelationships[0].addresses[0].agentLandlord);
+      sfExpense.set('Agent_Landlord_Name__c', truncate(application.customerRelationships[0].addresses[0].agentLandlord,30));
     }
     sfExpense.set('I_Pay_All_Exp__c', expenseDetails.isPayAllExpense);
     sfExpense.set('Applicant__c', salesforceApplicantID);
-    //expenses.push(sfExpense);
+    //expenses.push(sfExpense); //truncate(application.loanDescription, 20)
     // });//, this);
   }
   return sfExpense;
