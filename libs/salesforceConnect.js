@@ -147,7 +147,7 @@ createApplicant = (application, salesforceID) => {
     "Sir": "Mr",
     "Prof.": "Mr",
     "Mrs.": "Mrs",
-    "Mr.": "Mr:",
+    "Mr.": "Mr",
     "Ms.": "Ms",
     "Miss.": "Miss",
     "Dr.": "Dr"
