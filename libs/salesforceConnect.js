@@ -528,32 +528,33 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Date_of_Birth_WS__c', dobWebService);
   applicant.set('Date_of_Birth_Doc_Gen__c', dobWebServiceDocGen)
   var homePhoneNo = application.customerRelationships[0].homePhoneContact;
+  homePhoneNo = homePhoneNo.replace(/-/g, '');
   var homePhoneNoAreaCode = application.customerRelationships[0].homePhoneContact;
+  homePhoneNoAreaCode = homePhoneNoAreaCode.replace(/-/g, '');
   var workPhoneNo = application.customerRelationships[0].workPhoneContact;
+  workPhoneNo = workPhoneNo.replace(/-/g, '');
   var workPhoneNoAreaCode = application.customerRelationships[0].workPhoneContact;
+  workPhoneNoAreaCode = workPhoneNoAreaCode.replace(/-/g, '');
+  console.log(' application homePhoneNo |||||  ', homePhoneNo);
+  console.log(' application homePhoneNoAreaCode |||||  ', homePhoneNoAreaCode);
 
   if (homePhoneNo) {
-    homePhoneNo = homePhoneNo.substring(2, homePhoneNo.length);
-    homePhoneNoAreaCode = homePhoneNo.substring(0, 1);
+    homePhoneNo = homePhoneNo.substring(3, homePhoneNo.length);
+    homePhoneNoAreaCode = homePhoneNoAreaCode.substring(0, 2);
     applicant.set('Home_WS__c', homePhoneNo);
     applicant.set('Home_Area_Code__c', homePhoneNoAreaCode);
+    console.log(' application homePhoneNo ||||| After  trancute  ', homePhoneNo);
+    console.log(' application homePhoneNoAreaCode ||||| After  trancute  ', homePhoneNoAreaCode);
   }
   if (workPhoneNo) {
-    workPhoneNo = workPhoneNo.substring(2, workPhoneNo.length);
-    workPhoneNoAreaCode = workPhoneNo.substring(0, 1);
+    workPhoneNo = workPhoneNo.substring(3, workPhoneNo.length);
+    workPhoneNoAreaCode = workPhoneNoAreaCode.substring(0, 2);
     applicant.set('Work_WS__c', workPhoneNo);
     applicant.set('Work_Area_Code__c', workPhoneNoAreaCode);
   }
-
-  console.log(' application homePhoneNo |||||  ', homePhoneNo);
-  console.log(' application homePhoneNoAreaCode |||||  ', homePhoneNoAreaCode);
-  console.log(' application workPhoneNo ||||| After  trancute  ', workPhoneNo);
-  console.log(' application workPhoneNoAreaCode ||||| After  trancute  ', workPhoneNoAreaCode);
   console.log(' salesoforce id in applicant block ', salesforceID);
   applicant.set('Application__c', salesforceID);
-
   return applicant;
-
 }
 
 /* Create Primary Income Object */
@@ -593,18 +594,24 @@ createIncome = (application, salesforceApplicantID) => {
   console.log(' Income Source ||||| ', incomeSource);
   console.log(' Income incomeAmount ||||| ', incomeAmount);
   console.log(" INDUSTRY ", application.customerRelationships[0].industry);
+
+  var employerPhone = application.customerRelationships[0].employment[0].employerPhone;
+  employerPhone = employerPhone.replace(/-/g, '');
+  var employerPhoneAreaCode = employerPhone.substring(0, 2);
+  var employerPhoneNumber = employerPhone.substring(3, employerPhone.length);
+
   if (employmentType == 'CurrentEmployment') {
     income.set('Income_Source__c', incomeSource);
     income.set('Income_Interval__c', incomeFrequency);
     income.set('Income_Amount__c', incomeAmount);
     income.set('Total_Income__c', incomeAmount);
     income.set('Emp_Bus_Name__c', application.customerRelationships[0].employment[0].employerName);
-    income.set('Emp_Bus_Contact_No__c', application.customerRelationships[0].employment[0].employerPhone);
+    income.set('Emp_Bus_Contact_No__c', employerPhone);
     income.set('Years_With_Employer__c', application.customerRelationships[0].employment[0].employmentYears);
     income.set('Months_With_Employer__c', application.customerRelationships[0].employment[0].employmentMonths);
     income.set('Occupation__c', application.customerRelationships[0].industry);
-    income.set('Employer_Business_Contact_No_Area_Code__c', application.customerRelationships[0].employment[0].employerPhone);
-    income.set('Employer_Business_Contact_No_WS__c', application.customerRelationships[0].employment[0].employerPhone);
+    income.set('Employer_Business_Contact_No_Area_Code__c', employerPhoneAreaCode);
+    income.set('Employer_Business_Contact_No_WS__c', employerPhoneNumber);
   }
   income.set('Applicant__c', salesforceApplicantID);
   return income;
