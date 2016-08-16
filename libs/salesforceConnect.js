@@ -170,7 +170,9 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Date_of_Birth__c', dob);
   applicant.set('Rel_Status__c', application.customerRelationships[0].maritalStatus);
   applicant.set('No_of_Deps__c', application.customerRelationships[0].dependents);
-  var driverLicense = truncate(application.customerRelationships[0].driversLicense, 10);
+  var driverLicense = application.customerRelationships[0].driversLicense;
+  driverLicense = driverLicense.replace(/[\W_]+/g," ");
+  driverLicense = truncate(driverLicense, 10);
   console.log(" No of Dependent : =====", application.customerRelationships[0].dependents);
   console.log(' application driverLicense ||||| After  trancute  ', driverLicense);
   console.log('application.customerRelationships[0].gender', application.customerRelationships[0].gender);
@@ -539,7 +541,7 @@ createApplicant = (application, salesforceID) => {
   console.log(' application homePhoneNoAreaCode |||||  ', homePhoneNoAreaCode);
 
   if (homePhoneNo) {
-    homePhoneNo = homePhoneNo.substring(3, homePhoneNo.length);
+    homePhoneNo = homePhoneNo.substring(2, homePhoneNo.length);
     homePhoneNoAreaCode = homePhoneNoAreaCode.substring(0, 2);
     applicant.set('Home_WS__c', homePhoneNo);
     applicant.set('Home_Area_Code__c', homePhoneNoAreaCode);
@@ -547,7 +549,7 @@ createApplicant = (application, salesforceID) => {
     console.log(' application homePhoneNoAreaCode ||||| After  trancute  ', homePhoneNoAreaCode);
   }
   if (workPhoneNo) {
-    workPhoneNo = workPhoneNo.substring(3, workPhoneNo.length);
+    workPhoneNo = workPhoneNo.substring(2, workPhoneNo.length);
     workPhoneNoAreaCode = workPhoneNoAreaCode.substring(0, 2);
     applicant.set('Work_WS__c', workPhoneNo);
     applicant.set('Work_Area_Code__c', workPhoneNoAreaCode);
@@ -598,7 +600,7 @@ createIncome = (application, salesforceApplicantID) => {
   var employerPhone = application.customerRelationships[0].employment[0].employerPhone;
   employerPhone = employerPhone.replace(/-/g, '');
   var employerPhoneAreaCode = employerPhone.substring(0, 2);
-  var employerPhoneNumber = employerPhone.substring(3, employerPhone.length);
+  var employerPhoneNumber = employerPhone.substring(2, employerPhone.length);
 
   if (employmentType == 'CurrentEmployment') {
     income.set('Income_Source__c', incomeSource);
