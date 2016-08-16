@@ -533,13 +533,13 @@ createApplicant = (application, salesforceID) => {
   var workPhoneNoAreaCode = application.customerRelationships[0].workPhoneContact;
 
   if (homePhoneNo) {
-    homePhoneNo = homePhoneNo.substring(3, homePhoneNo.length);
+    homePhoneNo = homePhoneNo.substring(2, homePhoneNo.length);
     homePhoneNoAreaCode = homePhoneNo.substring(0, 1);
     applicant.set('Home_WS__c', homePhoneNo);
     applicant.set('Home_Area_Code__c', homePhoneNoAreaCode);
   }
   if (workPhoneNo) {
-    workPhoneNo = workPhoneNo.substring(3, workPhoneNo.length);
+    workPhoneNo = workPhoneNo.substring(2, workPhoneNo.length);
     workPhoneNoAreaCode = workPhoneNo.substring(0, 1);
     applicant.set('Work_WS__c', workPhoneNo);
     applicant.set('Work_Area_Code__c', workPhoneNoAreaCode);
