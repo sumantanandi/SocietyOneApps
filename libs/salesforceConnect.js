@@ -142,6 +142,11 @@ createApplicant = (application, salesforceID) => {
   var titleDesc = {
     "Sir": "Mr",
     "Prof.": "Mr",
+    "Mrs." :"Mrs",
+    "Mr.":"Mr:",
+    "Ms.":"Ms",
+    "Miss.":"Miss",
+    "Dr.":"Dr"
   };
 
   if (titleDesc[application.customerRelationships[0].title]) {
@@ -465,8 +470,9 @@ createApplicant = (application, salesforceID) => {
     "Seasonal": "Casual / Temporary / Seasonal",
     "Contract": "Contractor",
     "Self Employed": "Self Employed",
-    "Pension/Government benefits": "Other Pension",
-    "Unemployed": "Unemployed",
+    "Pension/Government Benefits": "Other Pension",
+    "Not In Paid Employment": "Unemployed",
+    "Unemployed":"Unemployed"
   };
 
   var noOfemployment = application.customerRelationships[0].employment;
@@ -558,8 +564,8 @@ createIncome = (application, salesforceApplicantID) => {
     "Casual": "My casual/temporary job",
     "Contract": "My contracting job",
     "Seasonal": "My seasonal job",
-    "Self-employed": "My self-employed business",
-    "Pension/govt": "My pension",
+    "Self Employed": "My self-employed business",
+    "Pension/Government Benefits": "My pension"
   };
 
   var incomeFrequency = {
@@ -733,7 +739,7 @@ createLiability = (application, salesforceApplicantID) => {
       if (debtObject.debtType == 'Mortgage') {
         sfDebt.set('Mortgage_Bal_Amt__c', debtObject.outstandingBalance);
         sfDebt.set('Mortgage_Borrowed_Amt__c', debtObject.amountOriginallyBorrowed);
-        sfDebt.set('Mortgage_Repayment_Amt__c', debtObject.monthlyRepaymentAmoun);
+        sfDebt.set('Mortgage_Repayment_Amt__c', debtObject.monthlyRepaymentAmount);
         sfDebt.set('Mortgage_Repayment_Interval__c', 'Month');
       }
       if (debtObject.debtType == 'Personal loan' || debtObject.debtType == 'Car loan' || debtObject.debtType == 'Hire purchase') {
