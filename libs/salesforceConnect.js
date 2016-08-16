@@ -92,30 +92,33 @@ createLoanPurpose = (application, salesforceID) => {
     "Buy or Refinance a Vehicle": "Car Purchase",
     "Pay Off Credit Cards or loans": "Debt consolidation",
     "Education Expenses": "Educational expenses",
-    "Holiday": "Travel/Holiday",
-    "Wedding": "Other",
-    "Retail Finance": "Other",
-    "Major Purchase": "Other",
-    "Home Improvement Loan": "Home Improvement Loan"
+    "Holiday": "Travel/Holiday"
   };
 
   var loanDesc = {
     "Wedding": "Wedding",
     "Retail Finance": "Retail Finance",
+    "Major Purchase": "Major Purchase"
   };
 
   loanPurpose.set('Loan_Amount__c', application.originalAmountRequested); //application.originalAmountRequested
 
   if (loanType[application.loanType]) {
     loanPurpose.set('Value__c', loanType[application.loanType]);
+  } else if (application.loanType === 'Other') {
+    loanPurpose.set('Value__c', 'Other');
+    loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanDescription, 19));
   } else {
     loanPurpose.set('Value__c', 'Other');
+    loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanType, 19));
   }
 
-  loanPurpose.set('Other_Loan_Purpose__c', loanDesc[application.loanDescription]);
-  if (application.loanType === 'Other') {
-    loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanDescription, 20));
-  }
+  /*  if (application.loanType === 'Other') {
+      loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanDescription, 20));
+    }
+    loanPurpose.set('Other_Loan_Purpose__c', loanDesc[application.loanDescription]); */
+
+
   console.log(" salesforceID  :::", salesforceID);
   loanPurpose.set('Application__c', salesforceID); //application.applicationNumber
   console.log('createLoanPurpose Operation :(LOAN AMOUNT ) ===============', application.originalAmountRequested);
@@ -162,10 +165,11 @@ createApplicant = (application, salesforceID) => {
   console.log(" No of Dependent : =====", application.customerRelationships[0].dependents);
   console.log(' application driverLicense ||||| After  trancute  ', driverLicense);
   console.log('application.customerRelationships[0].gender', application.customerRelationships[0].gender);
-  var driverLicenseFlag = false;
+  var driverLicenseFlag = true;
   if (driverLicense) {
-    driverLicenseFlag = true;
+    driverLicenseFlag = false;
   }
+  console.log(' application driverLicense flag after transaformation  ', driverLicenseFlag);
   applicant.set('Drivers_Lic_No__c', driverLicense);
   applicant.set('Drivers_Lic_Flg__c', driverLicenseFlag);
   applicant.set('Pref_Contact_Method__c', application.customerRelationships[0].preferredContactMethod);
@@ -189,7 +193,7 @@ createApplicant = (application, salesforceID) => {
   if (emailAddress.length > 40) {
     emailAddress = '';
   }
-  console.log("EMAIL ADDRESSS FIELD ",emailAddress);
+  console.log("EMAIL ADDRESSS FIELD ", emailAddress);
   applicant.set('Email_Address__c', emailAddress);
 
   var stateDesc = {
@@ -467,17 +471,21 @@ createApplicant = (application, salesforceID) => {
 
   var noOfemployment = application.customerRelationships[0].employment;
   var employmentType = application.customerRelationships[0].employmentType;
-
+ //console.log(" no of employment ",noOfemployment);
   if (noOfemployment) {
-    noOfemployment.forEach(function (employment) {
-      var employmentTypeInfo = employment.employmentType;
+    noOfemployment.forEach(function (employmentDetails) {
+      var employmentTypeInfo = employmentDetails.employmentType;
+      console.log("employment type ",employmentTypeInfo);
       if (employmentTypeInfo == 'CurrentEmployment') {
-        applicant.set('Primary_Employment_Status__c', primaryEmploymentStatus[application.customerRelationships[0].employmentStatus]);
+        applicant.set('Primary_Employment_Status__c', primaryEmploymentStatus[employmentDetails.employmentStatus]);
       }
       if (employmentTypeInfo == 'PreviousEmployment') {
-        applicant.set('Previous_Employment_Status__c', primaryEmploymentStatus[application.customerRelationships[0].employmentStatus]);
-        applicant.set('Time_at_previous_employer_years__c', application.customerRelationships[0].employment.employmentYears);
-        applicant.set('Time_at_previous_employer_months__c', application.customerRelationships[0].employment.employmentMonths);
+        applicant.set('Previous_Employment_Status__c', primaryEmploymentStatus[employmentDetails.employmentStatus]);
+        applicant.set('Time_at_previous_employer_years__c', employmentDetails.employmentYears);
+        applicant.set('Time_at_previous_employer_months__c', employmentDetails.employmentMonths);
+        console.log(' application employmentStatus Months |||||  ', employmentDetails.employmentMonths);
+        console.log(' application Years  |||||  ', employmentDetails.employmentYears);
+        console.log(' application employmentStatus  ', primaryEmploymentStatus[employmentDetails.employmentStatus]);
       }
 
     }, this);
@@ -490,16 +498,16 @@ createApplicant = (application, salesforceID) => {
      applicant.set('Res_Status__c', residentialStatus[addressTypeResidence]);
    }*/
   var securities = application.securities
-  var debts = application.debts
+  var debts = application.debt
   if (securities) {
-    applicant.set('Asset_Exempt__c', true);
-  } else {
     applicant.set('Asset_Exempt__c', false);
+  } else {
+    applicant.set('Asset_Exempt__c', true);
   }
   if (debts) {
-    applicant.set('Debts_Exempt__c', true);
-  } else {
     applicant.set('Debts_Exempt__c', false);
+  } else {
+    applicant.set('Debts_Exempt__c', true);
   }
 
   applicant.set('Is_Primary_Applicant__c', true);
@@ -556,7 +564,7 @@ createIncome = (application, salesforceApplicantID) => {
 
   var incomeFrequency = {
     "Weekly": "Week",
-    "Fortnightly": "My permanent - part time job",
+    "Fortnightly": "Fortnight",
     "Monthly": "Month",
     "Yearly": "Year",
   };
@@ -574,7 +582,7 @@ createIncome = (application, salesforceApplicantID) => {
   console.log(' Employment Type ||||| ', employmentType);
   console.log(' Income Source ||||| ', incomeSource);
   console.log(' Income incomeAmount ||||| ', incomeAmount);
-  console.log(" INDUSTRY ",application.customerRelationships[0].industry);
+  console.log(" INDUSTRY ", application.customerRelationships[0].industry);
   if (employmentType == 'CurrentEmployment') {
     income.set('Income_Source__c', incomeSource);
     income.set('Income_Interval__c', incomeFrequency);
@@ -659,7 +667,7 @@ createExpense = (application, salesforceApplicantID) => {
     sfExpense.set('Rent_Board_Pay_Amt__c', expenseDetails.homeMortgageOrRent);
     var addressTypeInfo = application.customerRelationships[0].addresses[0].addressType;
     if (addressTypeInfo == 'CurrentAddress') {
-      sfExpense.set('Agent_Landlord_Name__c', truncate(application.customerRelationships[0].addresses[0].agentLandlord,30));
+      sfExpense.set('Agent_Landlord_Name__c', truncate(application.customerRelationships[0].addresses[0].agentLandlord, 30));
     }
     sfExpense.set('I_Pay_All_Exp__c', expenseDetails.isPayAllExpense);
     sfExpense.set('Applicant__c', salesforceApplicantID);
@@ -686,6 +694,7 @@ createAsset = (application, salesforceApplicantID) => {
       console.log('ASSET CATEGORY ========================', assetObject.vehicleModel);
       console.log('ASSET CATEGORY ========================', assetObject.vehicleYear);
       sfAsset.set('Asset_Category__c', assetObject.assetCategory);
+      sfAsset.set('Asset_Value__c', assetObject.value);
       sfAsset.set('Vehicle_Make__c', assetObject.vehicleMake);
       sfAsset.set('Vehicle_Model__c', assetObject.vehicleModel);
       sfAsset.set('Vehicle_Year__c', assetObject.vehicleYear);
@@ -710,29 +719,33 @@ createLiability = (application, salesforceApplicantID) => {
       //if (security.debt) {
       sfDebt.set('Debt_Category__c', debtObject.debtType);
       sfDebt.set('Financier_Name__c', debtObject.financialInstitution);
-      if (debtObject.debtType == 'Store Card' || debtObject.debtType == 'Credit Card' || debtObject.debtType == 'Overdraft') {
+      if (debtObject.debtType == 'Store card' || debtObject.debtType == 'Credit card' || debtObject.debtType == 'Overdraft') {
         sfDebt.set('Card_Overdraft_Bal_Amt__c', debtObject.outstandingBalance);
         sfDebt.set('Credit_Limit_Amt__c', debtObject.withALimitOf);
       }
       if (debtObject.debtType == 'Overdraft') {
         sfDebt.set('Overdraft_APR__c', debtObject.overdraftInterest);
       }
+      if(debtObject.debtType == 'Credit card'){
+        //Type_of_Credit_Card__c
+        sfDebt.set('Type_of_Credit_Card__c', 'Others');
+      }
       if (debtObject.debtType == 'Mortgage') {
         sfDebt.set('Mortgage_Bal_Amt__c', debtObject.outstandingBalance);
         sfDebt.set('Mortgage_Borrowed_Amt__c', debtObject.amountOriginallyBorrowed);
         sfDebt.set('Mortgage_Repayment_Amt__c', debtObject.monthlyRepaymentAmoun);
-        sfDebt.set('Mortgage_Repayment_Interval__c', '');
+        sfDebt.set('Mortgage_Repayment_Interval__c', 'Month');
       }
-      if (debtObject.debtType == 'Personal Loan' || debtObject.debtType == 'Car Loan' || debtObject.debtType == 'Hire purchase') {
+      if (debtObject.debtType == 'Personal loan' || debtObject.debtType == 'Car loan' || debtObject.debtType == 'Hire purchase') {
         sfDebt.set('Car_Personal_Bal_Amt__c', debtObject.outstandingBalance);
         sfDebt.set('Car_Personal_Borrowed_Amt__c', debtObject.amountOriginallyBorrowed);
         sfDebt.set('Car_Personal_Repay_Amt__c', debtObject.monthlyRepaymentAmount);
-        sfDebt.set('Car_Personal_Repay_Int__c', '');
+        sfDebt.set('Car_Personal_Repay_Int__c', 'Month');
       }
       if (debtObject.debtType == 'Other') {
         sfDebt.set('Other_Borrowed_Amt__c', debtObject.amountOriginallyBorrowed);
         sfDebt.set('Other_Repay_Amt__c', debtObject.onthlyRepaymentAmount);
-        sfDebt.set('Other_Repay_Int__c', '');
+        sfDebt.set('Other_Repay_Int__c', 'Month');
       }
       sfDebt.set('Acknowledge_Payout__c', debtObject.isConsolidateDebt);
       sfDebt.set('Applicant__c', salesforceApplicantID);
