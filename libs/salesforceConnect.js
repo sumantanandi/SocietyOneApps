@@ -171,7 +171,7 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Rel_Status__c', application.customerRelationships[0].maritalStatus);
   applicant.set('No_of_Deps__c', application.customerRelationships[0].dependents);
   var driverLicense = application.customerRelationships[0].driversLicense;
-  driverLicense = driverLicense.replace(/[\W_]+/g," ");
+  driverLicense = driverLicense.replace('/[\W_]+/g','');
   driverLicense = truncate(driverLicense, 10);
   console.log(" No of Dependent : =====", application.customerRelationships[0].dependents);
   console.log(' application driverLicense ||||| After  trancute  ', driverLicense);
