@@ -1,17 +1,20 @@
 'use strict';
 var express = require("express");
+var fs = require("fs");
 var path = require("path");
 var bodyParser = require("body-parser");
-var config = require('./config/config.js');
-var connectionURL = process.env.DATABASE_URL || 'postgres://ythaatkhclsrbf:dpb30mSasjoou_bWUS2WeKjt0q@ec2-54-225-195-254.compute-1.amazonaws.com:5432/delv202g5ov939';
+
+var environment = process.env.NODE_ENV || 'local';
+//var connectionURL = process.env.DATABASE_URL || 'postgres://ythaatkhclsrbf:dpb30mSasjoou_bWUS2WeKjt0q@ec2-54-225-195-254.compute-1.amazonaws.com:5432/delv202g5ov939';
 //process.env.DATABASE_URL = 'postgres://ythaatkhclsrbf:dpb30mSasjoou_bWUS2WeKjt0q@ec2-54-225-195-254.compute-1.amazonaws.com:5432/delv202g5ov939';
-var pg = require('pg');
-pg.defaults.ssl = true;
+//var pg = require('pg');
+//pg.defaults.ssl = true;
 
 var EventEmitter = require('events').EventEmitter;
 var societyclient = require('./libs/societyclient');
 var credential = require('./model/Credential');
 var fetchBasicAuthFromDatabase = {};
+var fetchBasicAuthFromConfig = {};
 
 // When we submit an appication it can take a long time
 var submitApplicationProcess = new EventEmitter();
@@ -36,7 +39,29 @@ var server = app.listen(process.env.PORT || 8080, function () {
   console.log("Society one apps now running on port", port);
 });
 
+// Validate Basic Authenticatation details for Config JSON
+fetchBasicAuthFromConfig = () => {
+
+  var configuration = JSON.parse(
+    fs.readFileSync('./config/configs.js')
+  );
+
+  console.log(" NODE ENV ", environment);
+  var user = configuration[environment].apiKeys.username;
+  var pass = configuration[environment].apiKeys.password;
+  //console.log('USERRR ', user);
+  //console.log('PASSS ',pass);
+  return new Promise(function (resolve, reject) {
+    credential.username = user;
+    credential.client_secret = pass;
+    console.log("user name ::", credential.username);
+    console.log("pass code ::", credential.client_secret);
+    resolve(credential);
+  });
+}
+
 // Validate Basic Authenticatation details for Database
+/*
 fetchBasicAuthFromDatabase = () => {
   var Client = require('pg').Client;
   var client = new Client(connectionURL);
@@ -45,7 +70,7 @@ fetchBasicAuthFromDatabase = () => {
     pg.connect(connectionURL, function (err, client) {
       if (err) {
         reject(err);
-        console.log('Connection to postgres! Failed to Connect database  ...',err);
+        console.log('Connection to postgres! Failed to Connect database  ...', err);
         //throw err;
       }
       console.log('Connected to postgres! Getting user_authentification table  ...');
@@ -61,12 +86,15 @@ fetchBasicAuthFromDatabase = () => {
         });
     });
   });
-}
+}*/
 
 var auth = function (req, res, next) {
   var user = basicAuth(req);
-  fetchBasicAuthFromDatabase().then(accessToken => {
-    //console.log("config.Level: ", config.label);
+  //console.log("config.Level: ", config.label);
+
+  //console.log(JSON.stringify(configDetails.apiKeys.username));
+
+  fetchBasicAuthFromConfig().then(accessToken => {
     console.log("user.name: ", user.name);
     console.log("user.pass: ", user.pass);
     console.log("credential.username: ", accessToken.username);
@@ -100,12 +128,13 @@ function handleSucess(res, reason, message, code) {
   res.status(code || 201).json({ "success": message });
 }
 
+app.all("/*", auth);
 
-app.post("/api/v0/notification", auth, function (req, res) {
+app.post("/api/v0/notification", function (req, res) {
   var newContact = req.body;
   var app = req.body.id;
   var content = req.body.content;
-  console.log("Society One Application Notification Received:",app);
+  console.log("Society One Application Notification Received:", app);
   //newContact.createDate = new Date();
   console.log("ID: " + req.body);
   //console.log(req.headers['content-type']);
@@ -121,6 +150,7 @@ app.post("/api/v0/notification", auth, function (req, res) {
     handleSucess(res, "notification done", 201);
     //then emit save application to PG
     submitApplicationProcess.emit('submit-application', app);
+    res.end();
   }
 });
 /*db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
@@ -133,3 +163,4 @@ app.post("/api/v0/notification", auth, function (req, res) {
 
 //app.listen(3030);
 //console.log("app running on localhost:3030");
+module.exports = app;

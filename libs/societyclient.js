@@ -3,7 +3,7 @@
 var mockEnabled = process.env.MOCK_ENABLED || 'yes';
 var request = require("request");
 var https = require('https');
-var config = require('../config/config.js');
+var config = require('../config/configSettings.js');
 var clienttokens = '';
 var parsedresponsedata = '';
 var responsedata = '';
@@ -38,16 +38,16 @@ function applicationResource(accesstoken, applicationNumber) {
 	console.log(" Access Token Inside Application Resource API Call ", accesstoken);
 	console.log(" Application Number Inside Application Resource API Call ", applicationNumber);
 	if (mockEnabled == 'yes') {
-		applicationResourceURL = 'http://www.mocky.io/v2/'+applicationNumber;
+		applicationResourceURL = 'http://www.mocky.io/v2/' + applicationNumber;
 	} else {
-		applicationResourceURL = 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/'+applicationNumber;
+		applicationResourceURL = 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/' + applicationNumber;
 	}
-	console.log(" applicationResourceURL ======= ",applicationResourceURL);
+	console.log(" applicationResourceURL ======= ", applicationResourceURL);
     var optionsget = {
 		proxy: quotaguardstaticURL,
 		//url: 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/' + applicationNumber,
 		//url: 'http://www.mocky.io/v2/' + applicationNumber,
-		url:applicationResourceURL,
+		url: applicationResourceURL,
 		method: 'GET',
 		headers: {
 			'Authorization': 'Bearer ' + accesstoken,
@@ -101,6 +101,7 @@ exports.sendMessage = (applicationNumber) => {
 	};
 
 	function tokenService(error, response, body) {
+		//console.log(" Response code for Token Service ::", response.statusCode);
 		if (!error && response.statusCode == 200) {
 			//console.log(body);
 			parsed = JSON.parse(body);

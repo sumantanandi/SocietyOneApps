@@ -55,7 +55,7 @@ createApplication = (application) => {
   }
   // Risk Grade Taransformation 
   var riskGrade = application.secondaryCreditRating;
-  riskGrade.replace(/[0-9]/g, '');
+  riskGrade = riskGrade.replace(/[0-9]/g, '');
   console.log(" RISK GRADE ", riskGrade);
   app.set('Application_Type__c', 'Single');
   app.set('Higher_Approval_Consent__c', application.optionalDisclaimer2);
@@ -148,9 +148,15 @@ createApplicant = (application, salesforceID) => {
     applicant.set('Title__c', application.customerRelationships[0].title);
   }
 
-  applicant.set('first_Name__c', truncate(application.customerRelationships[0].firstNames, 15));
+  var firstName = truncate(application.customerRelationships[0].firstNames, 14);
+  console.log(" First Name ", firstName);
+  var lastName = truncate(application.customerRelationships[0].surname, 19);
+  console.log(" First Name ", firstName);
+  console.log(" Last Name ", lastName);
+
+  applicant.set('first_Name__c', firstName);
   applicant.set('Middle_Name__c', application.customerRelationships[0].middleNames);
-  applicant.set('Last_Name__c', truncate(application.customerRelationships[0].surname, 20));
+  applicant.set('Last_Name__c', lastName);
   applicant.set('Gender__c', application.customerRelationships[0].gender);
 
   var dob = dateFormat(application.customerRelationships[0].dateOfBirth, "dd-mm-yyyy");
@@ -163,8 +169,8 @@ createApplicant = (application, salesforceID) => {
   console.log('application.customerRelationships[0].gender', application.customerRelationships[0].gender);
   var driverLicenseFlag = true;
   if (driverLicense) {
-    driverLicense.replace(/[\W_]/g, '');//riskGrade.replace(/[0-9]/g, '');
-    driverLicense = truncate(driverLicense, 10);
+    driverLicense = driverLicense.replace(/[^a-zA-Z0-9]/g, '');//riskGrade.replace(/[0-9]/g, '');
+    driverLicense = truncate(driverLicense, 9);
     driverLicenseFlag = false;
   }
   console.log(' application driverLicense ||||| After  trancute  ', driverLicense);
