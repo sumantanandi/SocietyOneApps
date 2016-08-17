@@ -37,12 +37,10 @@ var org = nforce.createConnection({
   mode: 'multi' // optional, 'single' or 'multi' user mode, multi default 
 });
 
-
+/* This function will perform tarnsformation for complete Application Data receieved from Society One */
 createApplication = (application) => {
   console.log(' Inside createApplication Object  :');
   app = nforce.createSObject('Application__c');
-
-  //app.set('Loan_Term_Months__c', application.term);
   //Loan Term
   var loanTerm = {
     "24": "2 years",
@@ -55,7 +53,10 @@ createApplication = (application) => {
   } else {
     app.set('Loan_Term__c', '');
   }
-
+  // Risk Grade Taransformation 
+  var riskGrade = application.secondaryCreditRating;
+  riskGrade.replace(/[0-9]/g, '');
+  console.log(" RISK GRADE ", riskGrade);
   app.set('Application_Type__c', 'Single');
   app.set('Higher_Approval_Consent__c', application.optionalDisclaimer2);
   app.set('Product_Id__c', 'a0w90000002EplC');
@@ -63,7 +64,7 @@ createApplication = (application) => {
   app.set('Channel__c', '3rd Party Application');
   app.set('Business_Source__c', 'INTERNET APPLICATION');
   app.set('Branch__c', 'a0A9000000NjWJk ');
-  app.set('X3rd_Party_Quoted_Risk_Grade__c', application.secondaryCreditRating);
+  app.set('X3rd_Party_Quoted_Risk_Grade__c', riskGrade);
   app.set('X3rd_Party_Quoted_Rate__c', application.interestRate);
   app.set('X3rd_Party_Application_Source__c', 'INTERNET APPLICATION');
   app.set('X3rd_Party_Application_Number__c', application.applicationNumber); //application.applicationNumber 'A0009'
@@ -77,17 +78,15 @@ createApplication = (application) => {
   app.set('Brand_Lookup__c', 'a0f90000003ZwGj');
   app.set('Brand_String__c', 'Latitude');
   app.set('Type_of_Product__c', 'Personal Loan');
-  console.log('createApplication Operation :(applicationNumber) ===============', application.applicationNumber);
-  console.log('createApplication Operation :(application.secondaryCreditRating) ===============', application.secondaryCreditRating);
-  console.log('createApplication Operation :(application.originalAmountRequested) ===============', application.originalAmountRequested);
+  console.log('Society One Application Number ', application.applicationNumber);
+  console.log('Origination Loan Amount ', application.originalAmountRequested);
   return app;
 };
 
-
+/* This function will perform tarnsformation for complete Loan Purpose Data receieved from Society One */
 createLoanPurpose = (application, salesforceID) => {
   console.log(' Inside createLoanPurpose Object  :', salesforceID);
   loanPurpose = nforce.createSObject('Loan_Purpose__c');
-
   var loanType = {
     "Buy or Refinance a Vehicle": "Car Purchase",
     "Pay Off Credit Cards or loans": "Debt consolidation",
@@ -102,7 +101,6 @@ createLoanPurpose = (application, salesforceID) => {
   };
 
   loanPurpose.set('Loan_Amount__c', application.originalAmountRequested); //application.originalAmountRequested
-
   if (loanType[application.loanType]) {
     loanPurpose.set('Value__c', loanType[application.loanType]);
   } else if (application.loanType === 'Other') {
@@ -112,13 +110,6 @@ createLoanPurpose = (application, salesforceID) => {
     loanPurpose.set('Value__c', 'Other');
     loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanType, 19));
   }
-
-  /*  if (application.loanType === 'Other') {
-      loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanDescription, 20));
-    }
-    loanPurpose.set('Other_Loan_Purpose__c', loanDesc[application.loanDescription]); */
-
-
   console.log(" salesforceID  :::", salesforceID);
   loanPurpose.set('Application__c', salesforceID); //application.applicationNumber
   console.log('createLoanPurpose Operation :(LOAN AMOUNT ) ===============', application.originalAmountRequested);
@@ -127,13 +118,11 @@ createLoanPurpose = (application, salesforceID) => {
   return loanPurpose;
 };
 
-/* Transformation for Applicant Data */
+/* This function will perform tarnsformation for complete Applicant Data receieved from Society One */
 createApplicant = (application, salesforceID) => {
   console.log(' Inside createApplicant Object  :');
   applicant = nforce.createSObject('Applicant__c');
-
   //if there is no security set asset_exempt__c = true // TO DO LATER
-
   var EidvConent = {
     "true": "Yes",
     "false": "No"
@@ -163,7 +152,7 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Middle_Name__c', application.customerRelationships[0].middleNames);
   applicant.set('Last_Name__c', truncate(application.customerRelationships[0].surname, 20));
   applicant.set('Gender__c', application.customerRelationships[0].gender);
-  //Salesforce text format ("DD-MM-YYYY")
+
   var dob = dateFormat(application.customerRelationships[0].dateOfBirth, "dd-mm-yyyy");
   console.log(' application date of birth ||||| Before transform  ', application.customerRelationships[0].dateOfBirth);
   console.log(' application date of birth ||||| After  transform  ', dob);
@@ -171,15 +160,14 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Rel_Status__c', application.customerRelationships[0].maritalStatus);
   applicant.set('No_of_Deps__c', application.customerRelationships[0].dependents);
   var driverLicense = application.customerRelationships[0].driversLicense;
-  //driverLicense = driverLicense.replace(/[\W_]+/g, '');
-  driverLicense = truncate(driverLicense, 10);
-  console.log(" No of Dependent : =====", application.customerRelationships[0].dependents);
-  console.log(' application driverLicense ||||| After  trancute  ', driverLicense);
   console.log('application.customerRelationships[0].gender', application.customerRelationships[0].gender);
   var driverLicenseFlag = true;
   if (driverLicense) {
+    driverLicense.replace(/[\W_]/g, '');//riskGrade.replace(/[0-9]/g, '');
+    driverLicense = truncate(driverLicense, 10);
     driverLicenseFlag = false;
   }
+  console.log(' application driverLicense ||||| After  trancute  ', driverLicense);
   console.log(' application driverLicense flag after transaformation  ', driverLicenseFlag);
   applicant.set('Drivers_Lic_No__c', driverLicense);
   applicant.set('Drivers_Lic_Flg__c', driverLicenseFlag);
@@ -503,12 +491,6 @@ createApplicant = (application, salesforceID) => {
     }, this);
   }
 
-
-
-  /* var addressTypeResidence = application.customerRelationships[0].addresses.typeOfResidence;
-   if (application.customerRelationships[0].addresses.addressType == 'CurrentAddress') {
-     applicant.set('Res_Status__c', residentialStatus[addressTypeResidence]);
-   }*/
   var securities = application.securities
   var debts = application.debt
   if (securities) {
@@ -559,7 +541,7 @@ createApplicant = (application, salesforceID) => {
   return applicant;
 }
 
-/* Create Primary Income Object */
+/* This function will perform tarnsformation for Applicant Income Data receieved from Society One */
 createIncome = (application, salesforceApplicantID) => {
   //  app.Loan_Term_Months__c = application.field;
   var income = '';
@@ -619,7 +601,7 @@ createIncome = (application, salesforceApplicantID) => {
   return income;
 };
 
-/* Create Other Income Object */
+/* This function will perform tarnsformation for Applicant Other Income Data receieved from Society One */
 createOtherIncome = (application, salesforceApplicantID) => {
   console.log(' Inside Otehr Income  Object  :', salesforceApplicantID);
   var otherIncome = [];
@@ -690,8 +672,6 @@ createExpense = (application, salesforceApplicantID) => {
     }
     sfExpense.set('I_Pay_All_Exp__c', expenseDetails.isPayAllExpense);
     sfExpense.set('Applicant__c', salesforceApplicantID);
-    //expenses.push(sfExpense); //truncate(application.loanDescription, 20)
-    // });//, this);
   }
   return sfExpense;
 };
@@ -705,8 +685,6 @@ createAsset = (application, salesforceApplicantID) => {
   if (application.securities) {
     assetExempt = false;
     application.securities.forEach(function (assetObject) {
-      //  if (assetObject.assetCategory) {
-      //var assetData = "";
       var sfAsset = nforce.createSObject('Asset__c');
       console.log('ASSET CATEGORY ========================', assetObject.assetCategory);
       console.log('ASSET CATEGORY ========================', assetObject.vehicleMake);
@@ -721,7 +699,6 @@ createAsset = (application, salesforceApplicantID) => {
       sfAsset.set('Total_Assets__c', '1');
       sfAsset.set('Applicant__c', salesforceApplicantID);
       assets.push(sfAsset);
-      //}
     });
   }
   return assets;
