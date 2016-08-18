@@ -105,7 +105,7 @@ createLoanPurpose = (application, salesforceID) => {
     loanPurpose.set('Value__c', loanType[application.loanType]);
   } else if (application.loanType === 'Other') {
     loanPurpose.set('Value__c', 'Other');
-    loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanDescription, 19));
+    loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanTypeDescription, 19));
   } else {
     loanPurpose.set('Value__c', 'Other');
     loanPurpose.set('Other_Loan_Purpose__c', truncate(application.loanType, 19));
@@ -557,7 +557,7 @@ createIncome = (application, salesforceApplicantID) => {
     "Full Time": "My permanent - full time job",
     "Part Time": "My permanent - part time job",
     "Casual": "My casual/temporary job",
-    "Contract": "My contracting job",
+    "Contracting": "My contracting job",
     "Seasonal": "My seasonal job",
     "Self Employed": "My self-employed business",
     "Pension/Government Benefits": "My pension"
@@ -616,7 +616,7 @@ createOtherIncome = (application, salesforceApplicantID) => {
     "Part Time": "My permanent - part time job",
     "Temporary": "My casual/temporary job",
     "Casual": "My casual/temporary job",
-    "Contract": "My contracting job",
+    "Contracting": "My contracting job",
     "Seasonal": "My seasonal job",
     "Self Employed": "My self-employed business",
     "Pension": "My pension",
@@ -627,7 +627,7 @@ createOtherIncome = (application, salesforceApplicantID) => {
   };
   var incomeFrequency = {
     "Weekly": "Week",
-    "Fortnightly": "My permanent - part time job",
+    "Fortnightly": "Fortnight",
     "Monthly": "Month",
     "Yearly": "Year",
   };
