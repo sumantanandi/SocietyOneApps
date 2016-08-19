@@ -461,7 +461,7 @@ createApplicant = (application, salesforceID) => {
     "Part Time": "Permanent or Part Time (work less than 20 hours per week)",
     "Casual": "Casual / Temporary / Seasonal",
     "Seasonal": "Casual / Temporary / Seasonal",
-    "Contract": "Contractor",
+    "Contract": "My contracting job",
     "Self Employed": "Self Employed",
     "Pension/Government Benefits": "Other Pension",
     "Not In Paid Employment": "Unemployed",
