@@ -2,8 +2,8 @@
 var nforce = require('nforce');
 var truncate = require('truncate');
 var dateFormat = require('dateformat');
-var username = 'gewsprod@ge.com.orig.orignzqa' //502083718@lfs.com.orignzqa';
-var password = 'rdss@1234KFLKuatCMksPO4Wxr8m6oAlf';
+var fs = require("fs");
+var environment = process.env.NODE_ENV || 'prodsupport';
 
 var app = {};
 var applicant = {};
@@ -26,14 +26,31 @@ var debtStatusFlag = true;
 var expenseStatusFlag = true;
 var statusMessage = '';
 
+var configuration = '';
+
+console.log(" NODE ENV ", environment);
+
+var loginUrl = "https://test.salesforce.com" ;//configuration[environment].salesforce.loginUrl;
+var clientId = "3MVG9Se4BnchkASlWhzJF.MD61GyCL_dKgOaUua1wSUIrfZ9l30uRv82MKgc637sSPhkWRtt2iIZT0rAY2Uhz" ;//configuration[environment].salesforce.clientId;
+var clientSecret = "6661826966442902762";
+var redirectUri = "http://localhost:3000/oauth/_callback";//configuration[environment].salesforce.redirectUri;
+var apiVersion = "v35.0" ;//configuration[environment].salesforce.apiVersion;
+var environment = "sandbox";//configuration[environment].salesforce.environment;
+
+var username = "gewsprod@ge.com.preprod";//configuration[environment].salesforce.username; //'gewsprod@ge.com.orig.orignzqa' //502083718@lfs.com.orignzqa';
+var password = "p@55word";//configuration[environment].salesforce.password; //'rdss@1234KFLKuatCMksPO4Wxr8m6oAlf';
+
+var branchLookup = "a0A9000000NjWJk";//configuration[environment].salesforce.Branch__c;
+var brandLookup = "a0f90000003ZwGj";//configuration[environment].salesforce.Brand_Lookup__c;
+var productLookup = "a0w90000002EplC";//configuration[environment].salesforce.password;
 
 var org = nforce.createConnection({
-  loginUrl: 'https://test.salesforce.com',
-  clientId: '3MVG9e2mBbZnmM6mwtcAxJ5q2Map1ZfMtO_6Ej2VHNXlf2NYogSr3K1S971yEwQ3wp6eTQlAidrok2NnNkx24',
-  clientSecret: '6823672229527859214',
-  redirectUri: 'http://localhost:3000/oauth/_callback',
-  apiVersion: 'v35.0',  // optional, defaults to current salesforce API version 
-  environment: 'sandbox',  // optional, salesforce 'sandbox' or 'production', production default 
+  loginUrl: loginUrl,
+  clientId: clientId,
+  clientSecret: clientSecret,
+  redirectUri: redirectUri,
+  apiVersion: apiVersion,  // optional, defaults to current salesforce API version 
+  environment: environment,  // optional, salesforce 'sandbox' or 'production', production default 
   mode: 'multi' // optional, 'single' or 'multi' user mode, multi default 
 });
 
@@ -59,11 +76,11 @@ createApplication = (application) => {
   console.log(" RISK GRADE ", riskGrade);
   app.set('Application_Type__c', 'Single');
   app.set('Higher_Approval_Consent__c', application.optionalDisclaimer2);
-  app.set('Product_Id__c', 'a0w90000002EplC');
+  app.set('Product_Id__c', productLookup);
   app.set('Mirror__c', 'Society One');
   app.set('Channel__c', '3rd Party Application');
   app.set('Business_Source__c', 'INTERNET APPLICATION');
-  app.set('Branch__c', 'a0A9000000NjWJk ');
+  app.set('Branch__c', branchLookup);
   app.set('X3rd_Party_Quoted_Risk_Grade__c', riskGrade);
   app.set('X3rd_Party_Quoted_Rate__c', application.interestRate);
   app.set('X3rd_Party_Application_Source__c', 'INTERNET APPLICATION');
@@ -75,7 +92,7 @@ createApplication = (application) => {
   app.set('Application_Source__c', 'INTERNET');
   app.set('X3rd_Party_Security_Token__c', application.originalAmountRequested);
   app.set('X3rd_Party_Application_Source__c', 'Society One');
-  app.set('Brand_Lookup__c', 'a0f90000003ZwGj');
+  app.set('Brand_Lookup__c', brandLookup);
   app.set('Brand_String__c', 'Latitude');
   app.set('Type_of_Product__c', 'Personal Loan');
   console.log('Society One Application Number ', application.applicationNumber);

@@ -39,8 +39,8 @@
                             "Product_Id__c":"a0w90000002EplC"
     }
   },
-  "sit": {
-    "label": "local",
+  "prodsupport": {
+    "label": "prodsupport",
       "apiKeys": {
       "username": "latitudefs",
         "password" :"J87lrFHL63Hbjx9RIrc_8p56O-"
@@ -65,13 +65,13 @@
     },
     "salesforce": {
       "loginUrl": "https://test.salesforce.com",
-        "clientId": "3MVG9e2mBbZnmM6mwtcAxJ5q2Map1ZfMtO_6Ej2VHNXlf2NYogSr3K1S971yEwQ3wp6eTQlAidrok2NnNkx24",
-          "clientSecret": "6823672229527859214",
+        "clientId": "3MVG9Se4BnchkASlWhzJF.MD61GyCL_dKgOaUua1wSUIrfZ9l30uRv82MKgc637sSPhkWRtt2iIZT0rAY2Uhz",
+          "clientSecret": "6661826966442902762",
             "redirectUri": "http://localhost:3000/oauth/_callback",
               "apiVersion": "v35.0",
                 "environment":"sandbox",
-                  "username":"gewsprod@ge.com.orig.orignzqa",
-                    "password":"rdss@1234KFLKuatCMksPO4Wxr8m6oAlf",
+                  "username":"gewsprod@ge.com.preprod",
+                    "password":"p@55word",
                       "mode":"multi",
                         "Branch__c":"a0A9000000NjWJk",
                           "Brand_Lookup__c":"a0f90000003ZwGj",
