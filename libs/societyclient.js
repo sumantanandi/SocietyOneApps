@@ -3,7 +3,6 @@
 var mockEnabled = process.env.MOCK_ENABLED || 'yes';
 var request = require("request");
 var https = require('https');
-var config = require('../config/configSettings.js');
 var clienttokens = '';
 var parsedresponsedata = '';
 var responsedata = '';
