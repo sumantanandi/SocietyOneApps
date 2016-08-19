@@ -3,7 +3,7 @@ var nforce = require('nforce');
 var truncate = require('truncate');
 var dateFormat = require('dateformat');
 var fs = require("fs");
-var environment = process.env.NODE_ENV || 'prodsupport';
+var env = require('../server');
 
 var app = {};
 var applicant = {};
@@ -25,34 +25,12 @@ var assetStatusFlag = true;
 var debtStatusFlag = true;
 var expenseStatusFlag = true;
 var statusMessage = '';
-
 var configuration = '';
+var org = '';
+var branchLookup = '';
+var brandLookup = '';
+var productLookup = '';
 
-console.log(" NODE ENV ", environment);
-
-var loginUrl = "https://test.salesforce.com" ;//configuration[environment].salesforce.loginUrl;
-var clientId = "3MVG9Se4BnchkASlWhzJF.MD61GyCL_dKgOaUua1wSUIrfZ9l30uRv82MKgc637sSPhkWRtt2iIZT0rAY2Uhz" ;//configuration[environment].salesforce.clientId;
-var clientSecret = "6661826966442902762";
-var redirectUri = "http://localhost:3000/oauth/_callback";//configuration[environment].salesforce.redirectUri;
-var apiVersion = "v35.0" ;//configuration[environment].salesforce.apiVersion;
-var environment = "sandbox";//configuration[environment].salesforce.environment;
-
-var username = "gewsprod@ge.com.preprod";//configuration[environment].salesforce.username; //'gewsprod@ge.com.orig.orignzqa' //502083718@lfs.com.orignzqa';
-var password = "p@55word";//configuration[environment].salesforce.password; //'rdss@1234KFLKuatCMksPO4Wxr8m6oAlf';
-
-var branchLookup = "a0A9000000NjWJk";//configuration[environment].salesforce.Branch__c;
-var brandLookup = "a0f90000003ZwGj";//configuration[environment].salesforce.Brand_Lookup__c;
-var productLookup = "a0w90000002EplC";//configuration[environment].salesforce.password;
-
-var org = nforce.createConnection({
-  loginUrl: loginUrl,
-  clientId: clientId,
-  clientSecret: clientSecret,
-  redirectUri: redirectUri,
-  apiVersion: apiVersion,  // optional, defaults to current salesforce API version 
-  environment: environment,  // optional, salesforce 'sandbox' or 'production', production default 
-  mode: 'multi' // optional, 'single' or 'multi' user mode, multi default 
-});
 
 /* This function will perform tarnsformation for complete Application Data receieved from Society One */
 createApplication = (application) => {
@@ -186,7 +164,7 @@ createApplicant = (application, salesforceID) => {
   console.log('application.customerRelationships[0].gender', application.customerRelationships[0].gender);
   var driverLicenseFlag = true;
   if (driverLicense) {
-    driverLicense = driverLicense.replace(/[^a-zA-Z0-9]/g, '');//riskGrade.replace(/[0-9]/g, '');
+    driverLicense = driverLicense.replace(/[^a-zA-Z0-9]/g, '');
     driverLicense = truncate(driverLicense, 9);
     driverLicenseFlag = false;
   }
@@ -198,8 +176,6 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Mobile__c', application.customerRelationships[0].mobileContact);
   var homePh = application.customerRelationships[0].homePhoneContact;
   var workPh = application.customerRelationships[0].workPhoneContact;
-  //homePh = homePh.replace(/-/g, '');
-  //workPh = workPh.replace(/-/g, '');
   if (homePh) {
     homePh = homePh.replace(/-/g, '');
     applicant.set('Home__c', homePh);
@@ -494,7 +470,6 @@ createApplicant = (application, salesforceID) => {
 
   var noOfemployment = application.customerRelationships[0].employment;
   var employmentType = application.customerRelationships[0].employmentType;
-  //console.log(" no of employment ",noOfemployment);
   if (noOfemployment) {
     noOfemployment.forEach(function (employmentDetails) {
       var employmentTypeInfo = employmentDetails.employmentType;
@@ -709,10 +684,10 @@ createAsset = (application, salesforceApplicantID) => {
     assetExempt = false;
     application.securities.forEach(function (assetObject) {
       var sfAsset = nforce.createSObject('Asset__c');
-      console.log('ASSET CATEGORY ========================', assetObject.assetCategory);
-      console.log('ASSET CATEGORY ========================', assetObject.vehicleMake);
-      console.log('ASSET CATEGORY ========================', assetObject.vehicleModel);
-      console.log('ASSET CATEGORY ========================', assetObject.vehicleYear);
+      console.log('ASSET CATEGORY : assetCategory ', assetObject.assetCategory);
+      console.log('ASSET CATEGORY : vehicleMake', assetObject.vehicleMake);
+      console.log('ASSET CATEGORY : vehicleModel', assetObject.vehicleModel);
+      console.log('ASSET CATEGORY : vehicleYear', assetObject.vehicleYear);
       sfAsset.set('Asset_Category__c', assetObject.assetCategory);
       sfAsset.set('Asset_Value__c', assetObject.value);
       sfAsset.set('Vehicle_Make__c', assetObject.vehicleMake);
@@ -768,10 +743,6 @@ createLiability = (application, salesforceApplicantID) => {
       }
       sfDebt.set('Acknowledge_Payout__c', debtObject.isConsolidateDebt);
       sfDebt.set('Applicant__c', salesforceApplicantID);
-      //sfDebt.set('Type_of_Credit_Card__c', debt.debtType);
-      //sfDebt.set('Car_Personal_Borrowed_Amt__c', debt.debtType);
-      //sfDebt.set('Acknowledge_Payout__c', debt.debtType);
-      // sfDebt.set('Acknowledge_Payout__c', debt.debtType);
       liabilities.push(sfDebt);
       // }
     });
@@ -899,9 +870,41 @@ function populateStatus(application, oauth, salesforceApplicantID, statusMessage
 }
 
 exports.saveApplication = (application) => {
-  //populateData(application);
   var salesforceID = '';
   var salesforceApplicantID = "";
+  var configuration = JSON.parse(
+    fs.readFileSync('./config/configs.js')
+  );
+  console.log(" NODE ENV IN EXPORT APPS", env.environment);
+  var loginUrl = configuration[env.environment].salesforce.username;
+  var clientId = configuration[env.environment].salesforce.clientId;
+  var clientSecret = configuration[env.environment].salesforce.clientSecret;
+  var redirectUri = configuration[env.environment].salesforce.redirectUri;
+  var apiVersion = configuration[env.environment].salesforce.apiVersion;
+  var sfdcEnvironment = configuration[env.environment].salesforce.environment;
+  var username = configuration[env.environment].salesforce.username; //'gewsprod@ge.com.orig.orignzqa' //502083718@lfs.com.orignzqa';
+  var password = configuration[env.environment].salesforce.password; //'rdss@1234KFLKuatCMksPO4Wxr8m6oAlf';
+
+  console.log(" clientId : ",clientId);
+  console.log(" clientSecret ",clientSecret);
+  console.log(" sfdcEnvironment ",sfdcEnvironment);
+
+  branchLookup = configuration[env.environment].salesforce.Branch__c;
+  brandLookup = configuration[env.environment].salesforce.Brand_Lookup__c;
+  productLookup = configuration[env.environment].salesforce.Product_Id__c;
+
+  org = nforce.createConnection({
+    loginUrl: loginUrl,
+    clientId: clientId,
+    clientSecret: clientSecret,
+    redirectUri: redirectUri,
+    apiVersion: apiVersion,  // optional, defaults to current salesforce API version 
+    environment: sfdcEnvironment,  // optional, salesforce 'sandbox' or 'production', production default 
+    mode: 'multi' // optional, 'single' or 'multi' user mode, multi default 
+  });
+
+
+
   org.authenticate({ username: username, password: password }, function (err, resp) {
     // store the oauth object for this user 
     if (!err) oauth = resp;

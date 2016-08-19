@@ -14,6 +14,7 @@ var parsed = '';
 var accesstoken = '';
 var bodyforapplication = '';
 //var applicationStore = require('./applicationStore');
+var environment = require('../server');
 var applicationStore = require('./salesforceConnect');
 //var bodyParser = require('body-parser')
 var applicationResourceURL = '';

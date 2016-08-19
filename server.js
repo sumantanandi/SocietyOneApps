@@ -4,7 +4,9 @@ var fs = require("fs");
 var path = require("path");
 var bodyParser = require("body-parser");
 
-var environment = process.env.NODE_ENV || 'local'; //local for development purpose
+var environment = process.env.NODE_ENV || 'prodsupport';
+exports.environment = environment;
+
 //var connectionURL = process.env.DATABASE_URL || 'postgres://ythaatkhclsrbf:dpb30mSasjoou_bWUS2WeKjt0q@ec2-54-225-195-254.compute-1.amazonaws.com:5432/delv202g5ov939';
 //var pg = require('pg');
 //pg.defaults.ssl = true;
