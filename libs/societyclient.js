@@ -6,19 +6,15 @@ var https = require('https');
 var clienttokens = '';
 var parsedresponsedata = '';
 var responsedata = '';
-//var cert = require('ssl-root-cas').inject().addFile('localcert.cer');
 var fs = require('fs');
 var querystring = require('querystring');
 var body = '';
 var parsed = '';
 var accesstoken = '';
 var bodyforapplication = '';
-//var applicationStore = require('./applicationStore');
-var environment = require('../server');
+var env = require('../server');
 var applicationStore = require('./salesforceConnect');
-//var bodyParser = require('body-parser')
 var applicationResourceURL = '';
-var quotaguardstaticURL = process.env.QUOTAGUARDSTATIC_URL = 'http://quotaguard6398:fe41e4de067b@us-east-static-01.quotaguard.com:9293';
 var EventEmitter = require('events').EventEmitter;
 
 // When we submit an appication it can take a long time
@@ -34,13 +30,13 @@ saveApplication.on('save-application', function (application) {
 });
 
 //mockEnabled
-function applicationResource(accesstoken, applicationNumber) {
+function applicationResource(accesstoken, applicationNumber, quotaguardstaticURL ,applicationResourceAPI) {
 	console.log(" Access Token Inside Application Resource API Call ", accesstoken);
 	console.log(" Application Number Inside Application Resource API Call ", applicationNumber);
 	if (mockEnabled == 'yes') {
 		applicationResourceURL = 'http://www.mocky.io/v2/' + applicationNumber;
 	} else {
-		applicationResourceURL = 'https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/' + applicationNumber;
+		applicationResourceURL = applicationResourceAPI + applicationNumber;
 	}
 	console.log(" applicationResourceURL ======= ", applicationResourceURL);
     var optionsget = {
@@ -74,25 +70,38 @@ function applicationResource(accesstoken, applicationNumber) {
 }
 
 exports.sendMessage = (applicationNumber) => {
-
+	console.log("Application Number in SocietyOne Client Code ", applicationNumber);
 	var access_token = null;
 	var expires_in = null;
-	console.log("applicationNumber ============== ", applicationNumber);
+	var configuration = JSON.parse(
+		fs.readFileSync('./config/configs.js')
+	);
+    console.log(" NODE ENV IN EXPORT APPS", env.environment);
 
+	var clientID = configuration[env.environment].messages.client_id;
+	var clientSecret = configuration[env.environment].messages.client_secret;
+	var userName = configuration[env.environment].messages.username;
+	var passwordValue = configuration[env.environment].messages.password;
+	var notificationAPI = configuration[env.environment].messages.notificationURL;
+	var applicationResourceAPI = configuration[env.environment].messages.applicationResourceURL;
+	var quotaguardstaticURL = configuration[env.environment].messages.quotaguardstaticURL;
+
+	console.log(" quotaguardstaticURL " ,quotaguardstaticURL);
+console.log(" applicationResourceAPI " ,applicationResourceAPI);
 	//return new Promise(function (resolve, reject) {
 
 	var postData = querystring.stringify({
-		'client_id': 'uat2latitudeaus',
-		'client_secret': 'password99',
+		'client_id': clientID,
+		'client_secret': clientSecret,
 		'grant_type': 'password',
-		'username': 'latitudeausfc',
-		'password': 'password99',
+		'username': userName,
+		'password': passwordValue,
 		'scope': 'api',
 	})
 
 	var options = {
 		proxy: quotaguardstaticURL,
-		url: 'https://uat2-identityservice.clearmatch.co/connect/token',
+		url: notificationAPI ,//'https://uat2-identityservice.clearmatch.co/connect/token',
 		body: postData,
 		method: 'POST',
 		headers: {
@@ -109,7 +118,7 @@ exports.sendMessage = (applicationNumber) => {
 			expires_in = parsed.expires_in;
 			console.log("access token Value : ", access_token);
 			console.log("access token Expire : ", expires_in);
-			applicationResource(access_token, applicationNumber);
+			applicationResource(access_token, applicationNumber,quotaguardstaticURL,applicationResourceAPI);
 		}
 		if (error) {
 			console.log(error);

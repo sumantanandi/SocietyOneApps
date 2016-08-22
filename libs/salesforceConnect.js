@@ -934,7 +934,7 @@ exports.saveApplication = (application) => {
             setTimeout(function () {
               console.log('Populate Salesforce Application Status Log');
               populateStatus(application, oauth, salesforceApplicantID, statusMessage);
-            }, 5000);
+            }, 7000);
           }//
           if (err) {
             applicantStatusFlag = false;

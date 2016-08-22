@@ -118,7 +118,7 @@
     }
   },
   "prod": {
-    "label": "local",
+    "label": "prod",
       "apiKeys": {
       "username": "latitudefs",
         "password" :"J87lrFHL63Hbjx9RIrc_8p56O-"
@@ -132,22 +132,22 @@
     },
     "messages": {
       "quotaguardstaticURL": "http://quotaguard6398:fe41e4de067b@us-east-static-01.quotaguard.com:9293",
-        "notificationURL": "https://uat2-identityservice.clearmatch.co/connect/token",
-          "applicationResourceURL":"https://uat2-api.clearmatch.co/v1/unsecuredLoans/application/",
-            "client_id":"uat2latitudeaus",
-              "client_secret":"password99",
+        "notificationURL": "https://identityservice.clearmatch.co/connect/token",
+          "applicationResourceURL":"https://api.clearmatch.co/v1/unsecuredLoans/application/",
+            "client_id":"latitudeaus",
+              "client_secret":"DC1B1BB5B830",
                 "grant_type":"password",
                   "username":"latitudeausfc",
-                    "password":"password99",
+                    "password":"0ADDCE53853F",
                       "scope":"api"
     },
     "salesforce": {
-      "loginUrl": "https://test.salesforce.com",
-        "clientId": "3MVG9e2mBbZnmM6mwtcAxJ5q2Map1ZfMtO_6Ej2VHNXlf2NYogSr3K1S971yEwQ3wp6eTQlAidrok2NnNkx24",
-          "clientSecret": "6823672229527859214",
+      "loginUrl": "https://login.salesforce.com",
+        "clientId": "3MVG9A2kN3Bn17huR95uBX8KyA3EsmkLTCUgKDXIBqDZCnjgVkAHj0uoWqaOdzC6UNKMf6KxojaSzn4n7UYkh",
+          "clientSecret": "4265015630533129709",
             "redirectUri": "http://localhost:3000/oauth/_callback",
               "apiVersion": "v35.0",
-                "environment":"sandbox",
+                "environment":"production",
                   "username":"gewsprod@ge.com.orig.orignzqa",
                     "password":"rdss@1234KFLKuatCMksPO4Wxr8m6oAlf",
                       "mode":"multi",

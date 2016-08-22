@@ -50,8 +50,6 @@ fetchBasicAuthFromConfig = () => {
   console.log(" NODE ENV ", environment);
   var user = configuration[environment].apiKeys.username;
   var pass = configuration[environment].apiKeys.password;
-  //console.log('USERRR ', user);
-  //console.log('PASSS ',pass);
   return new Promise(function (resolve, reject) {
     credential.username = user;
     credential.client_secret = pass;
@@ -91,10 +89,6 @@ fetchBasicAuthFromDatabase = () => {
 
 var auth = function (req, res, next) {
   var user = basicAuth(req);
-  //console.log("config.Level: ", config.label);
-
-  //console.log(JSON.stringify(configDetails.apiKeys.username));
-
   fetchBasicAuthFromConfig().then(accessToken => {
     console.log("user.name: ", user.name);
     console.log("user.pass: ", user.pass);
@@ -154,14 +148,4 @@ app.post("/api/v0/notification", function (req, res) {
     res.end();
   }
 });
-/*db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
-  if (err) {
-    handleError(res, err.message, "Failed to create new contact.");
-  } else {
-    res.status(201).json(doc.ops[0]);
-  }
-}); */
-
-//app.listen(3030);
-//console.log("app running on localhost:3030");
 module.exports = app;
