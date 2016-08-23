@@ -604,10 +604,13 @@ createOtherIncome = (application, salesforceApplicantID) => {
   console.log(' Inside Otehr Income  Object  :', salesforceApplicantID);
   var otherIncome = [];
   var incomeSourceList = {
+    "My permanent - full time job": "My permanent - full time job",
     "Full Time": "My permanent - full time job",
+    "My permanent - part time job":"My permanent - part time job",
     "Part Time": "My permanent - part time job",
     "Temporary": "My casual/temporary job",
     "Casual": "My casual/temporary job",
+    "Contracting": "My contracting job",
     "Contract": "My contracting job",
     "Seasonal": "My seasonal job",
     "Self Employed": "My self-employed business",
