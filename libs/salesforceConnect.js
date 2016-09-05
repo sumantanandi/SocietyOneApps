@@ -603,9 +603,6 @@ createIncome = (application, salesforceApplicantID) => {
     mobilePhoneNumberfield = mobilephoneNo.substring(2, mobilephoneNo.length);
   }
 
-
-
-
   console.log(" Occupation in Income block ", occupation);
   console.log(" employerPhone in Income block ", employerPhone);
 
@@ -619,15 +616,31 @@ createIncome = (application, salesforceApplicantID) => {
     income.set('Years_With_Employer__c', application.customerRelationships[0].employment[0].employmentYears);
     income.set('Months_With_Employer__c', application.customerRelationships[0].employment[0].employmentMonths);
     income.set('Occupation__c', application.customerRelationships[0].industry);
-    if (occupation == 'Self Employed' && employerPhone == '') {
-      income.set('Emp_Bus_Contact_No__c', mobilephoneNo);
-      income.set('Employer_Business_Contact_No_Area_Code__c', mobilePhoneAreaCodeInfo);
-      income.set('Employer_Business_Contact_No_WS__c', mobilePhoneNumberfield);
+
+    if (!employerPhone) {
+      if (occupation == 'Self Employed') {
+        console.log(" Inside Self Employed Rules ---")
+        income.set('Emp_Bus_Contact_No__c', mobilephoneNo);
+        income.set('Employer_Business_Contact_No_Area_Code__c', mobilePhoneAreaCodeInfo);
+        income.set('Employer_Business_Contact_No_WS__c', mobilePhoneNumberfield);
+
+      }
     } else {
       income.set('Emp_Bus_Contact_No__c', employerPhone);
       income.set('Employer_Business_Contact_No_Area_Code__c', employerPhoneAreaCode);
       income.set('Employer_Business_Contact_No_WS__c', employerPhoneNumber);
     }
+
+    /* if (occupation == 'Self Employed' && employerPhone == '') {
+       console.log(" Inside Self Employed Rules ---")
+       income.set('Emp_Bus_Contact_No__c', mobilephoneNo);
+       income.set('Employer_Business_Contact_No_Area_Code__c', mobilePhoneAreaCodeInfo);
+       income.set('Employer_Business_Contact_No_WS__c', mobilePhoneNumberfield);
+     } else {
+       income.set('Emp_Bus_Contact_No__c', employerPhone);
+       income.set('Employer_Business_Contact_No_Area_Code__c', employerPhoneAreaCode);
+       income.set('Employer_Business_Contact_No_WS__c', employerPhoneNumber);
+     } */
     /*if (employerPhone) {
       income.set('Employer_Business_Contact_No_Area_Code__c', employerPhoneAreaCode);
       income.set('Employer_Business_Contact_No_WS__c', employerPhoneNumber);
@@ -692,7 +705,7 @@ createOtherIncome = (application, salesforceApplicantID) => {
       }
 
       sfIncomeOther.set('Income_Amount__c', otherIncomeAmount);
-      sfIncomeOther.set('Total_Income__c',0);
+      sfIncomeOther.set('Total_Income__c', 0);
       sfIncomeOther.set('Emp_Bus_Name__c', otherIncomeObject.employerName);
       sfIncomeOther.set('Emp_Bus_Contact_No__c', employerOtherPhone);
       sfIncomeOther.set('Years_With_Employer__c', otherIncomeObject.employerYear);
