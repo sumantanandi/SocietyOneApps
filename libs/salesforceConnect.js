@@ -468,8 +468,10 @@ createApplicant = (application, salesforceID) => {
     "Unemployed": "Unemployed"
   };
 
+  var employerPhone = application.customerRelationships[0].employment[0].employerPhone;
   var noOfemployment = application.customerRelationships[0].employment;
   var employmentType = application.customerRelationships[0].employmentType;
+
   if (noOfemployment) {
     noOfemployment.forEach(function (employmentDetails) {
       var employmentTypeInfo = employmentDetails.employmentType;
@@ -510,17 +512,16 @@ createApplicant = (application, salesforceID) => {
   applicant.set('Date_of_Birth_WS__c', dobWebService);
   applicant.set('Date_of_Birth_Doc_Gen__c', dobWebServiceDocGen)
   var homePhoneNo = application.customerRelationships[0].homePhoneContact;
-  homePhoneNo = homePhoneNo.replace(/-/g, '');
   var homePhoneNoAreaCode = application.customerRelationships[0].homePhoneContact;
-  homePhoneNoAreaCode = homePhoneNoAreaCode.replace(/-/g, '');
   var workPhoneNo = application.customerRelationships[0].workPhoneContact;
-  workPhoneNo = workPhoneNo.replace(/-/g, '');
   var workPhoneNoAreaCode = application.customerRelationships[0].workPhoneContact;
-  workPhoneNoAreaCode = workPhoneNoAreaCode.replace(/-/g, '');
+
   console.log(' application homePhoneNo |||||  ', homePhoneNo);
   console.log(' application homePhoneNoAreaCode |||||  ', homePhoneNoAreaCode);
 
   if (homePhoneNo) {
+    homePhoneNo = homePhoneNo.replace(/-/g, '');
+    homePhoneNoAreaCode = homePhoneNoAreaCode.replace(/-/g, '');
     homePhoneNo = homePhoneNo.substring(2, homePhoneNo.length);
     homePhoneNoAreaCode = homePhoneNoAreaCode.substring(0, 2);
     applicant.set('Home_WS__c', homePhoneNo);
@@ -529,6 +530,8 @@ createApplicant = (application, salesforceID) => {
     console.log(' application homePhoneNoAreaCode ||||| After  trancute  ', homePhoneNoAreaCode);
   }
   if (workPhoneNo) {
+    workPhoneNo = workPhoneNo.replace(/-/g, '');
+    workPhoneNoAreaCode = workPhoneNoAreaCode.replace(/-/g, '');
     workPhoneNo = workPhoneNo.substring(2, workPhoneNo.length);
     workPhoneNoAreaCode = workPhoneNoAreaCode.substring(0, 2);
     applicant.set('Work_WS__c', workPhoneNo);
@@ -552,7 +555,9 @@ createIncome = (application, salesforceApplicantID) => {
     "Contract": "My contracting job",
     "Seasonal": "My seasonal job",
     "Self Employed": "My self-employed business",
-    "Pension/Government Benefits": "My pension"
+    "Pension/Government Benefits": "My pension",
+    "Not In Paid Employment": "Unemployed",
+    "Unemployed": "Unemployed"
   };
 
   var incomeFrequency = {
@@ -564,7 +569,8 @@ createIncome = (application, salesforceApplicantID) => {
   var employmentType = application.customerRelationships[0].employment[0].employmentType;
   var incomeSource = incomeSourceList[application.customerRelationships[0].employment[0].employmentStatus];
   var incomeFrequency = incomeFrequency[application.customerRelationships[0].incomeFrequency];
-  var incomeAmount = application.customerRelationships[0].annualIncomeAfterTax;//"10000.00"; 
+  //var incomeAmount = application.customerRelationships[0].annualIncomeAfterTax;//"10000.00"; 
+  var incomeAmount = application.customerRelationships[0].employmentIncomeAfterTax;
   if (application.customerRelationships[0].incomeFrequency == 'Monthly') {
     incomeAmount = incomeAmount / 12;
   } else if (application.customerRelationships[0].incomeFrequency == 'Fortnightly') {
@@ -577,23 +583,56 @@ createIncome = (application, salesforceApplicantID) => {
   console.log(' Income incomeAmount ||||| ', incomeAmount);
   console.log(" INDUSTRY ", application.customerRelationships[0].industry);
 
+  var employerPhoneAreaCode = '';
+  var employerPhoneNumber = '';
+  var mobilePhoneAreaCodeInfo = '';
+  var mobilePhoneNumberfield = '';
+
   var employerPhone = application.customerRelationships[0].employment[0].employerPhone;
-  employerPhone = employerPhone.replace(/-/g, '');
-  var employerPhoneAreaCode = employerPhone.substring(0, 2);
-  var employerPhoneNumber = employerPhone.substring(2, employerPhone.length);
+  //var noOfemployment = application.customerRelationships[0].employment;
+  //var employmentType = application.customerRelationships[0].employmentType;
+  var occupation = application.customerRelationships[0].employment[0].occupation;
+  //var employerPhone = application.customerRelationships[0].employment[0].employerPhone;
+  var mobilephoneNo = application.customerRelationships[0].mobileContact;
+
+  if (employerPhone) {
+    employerPhone = employerPhone.replace(/-/g, '');
+    employerPhoneAreaCode = employerPhone.substring(0, 2);
+    employerPhoneNumber = employerPhone.substring(2, employerPhone.length);
+    mobilePhoneAreaCodeInfo = mobilephoneNo.substring(0, 2);
+    mobilePhoneNumberfield = mobilephoneNo.substring(2, mobilephoneNo.length);
+  }
+
+
+
+
+  console.log(" Occupation in Income block ", occupation);
+  console.log(" employerPhone in Income block ", employerPhone);
 
   if (employmentType == 'CurrentEmployment') {
     income.set('Income_Source__c', incomeSource);
     income.set('Income_Interval__c', incomeFrequency);
     income.set('Income_Amount__c', incomeAmount);
-    income.set('Total_Income__c', incomeAmount);
+    income.set('Total_Income__c', 0);
     income.set('Emp_Bus_Name__c', application.customerRelationships[0].employment[0].employerName);
-    income.set('Emp_Bus_Contact_No__c', employerPhone);
+    //income.set('Emp_Bus_Contact_No__c', employerPhone);
     income.set('Years_With_Employer__c', application.customerRelationships[0].employment[0].employmentYears);
     income.set('Months_With_Employer__c', application.customerRelationships[0].employment[0].employmentMonths);
     income.set('Occupation__c', application.customerRelationships[0].industry);
-    income.set('Employer_Business_Contact_No_Area_Code__c', employerPhoneAreaCode);
-    income.set('Employer_Business_Contact_No_WS__c', employerPhoneNumber);
+    if (occupation == 'Self Employed' && employerPhone == '') {
+      income.set('Emp_Bus_Contact_No__c', mobilephoneNo);
+      income.set('Employer_Business_Contact_No_Area_Code__c', mobilePhoneAreaCodeInfo);
+      income.set('Employer_Business_Contact_No_WS__c', mobilePhoneNumberfield);
+    } else {
+      income.set('Emp_Bus_Contact_No__c', employerPhone);
+      income.set('Employer_Business_Contact_No_Area_Code__c', employerPhoneAreaCode);
+      income.set('Employer_Business_Contact_No_WS__c', employerPhoneNumber);
+    }
+    /*if (employerPhone) {
+      income.set('Employer_Business_Contact_No_Area_Code__c', employerPhoneAreaCode);
+      income.set('Employer_Business_Contact_No_WS__c', employerPhoneNumber);
+    }*/
+
   }
   income.set('Applicant__c', salesforceApplicantID);
   return income;
@@ -606,7 +645,7 @@ createOtherIncome = (application, salesforceApplicantID) => {
   var incomeSourceList = {
     "My permanent - full time job": "My permanent - full time job",
     "Full Time": "My permanent - full time job",
-    "My permanent - part time job":"My permanent - part time job",
+    "My permanent - part time job": "My permanent - part time job",
     "Part Time": "My permanent - part time job",
     "Temporary": "My casual/temporary job",
     "Casual": "My casual/temporary job",
@@ -632,7 +671,7 @@ createOtherIncome = (application, salesforceApplicantID) => {
       var sfIncomeOther = nforce.createSObject('Income__c');
       sfIncomeOther.set('Income_Source__c', incomeSourceList[otherIncomeObject.otherIncomeSource]);
       sfIncomeOther.set('Income_Interval__c', incomeFrequency[otherIncomeObject.otherIncomeFrequency]);
-      var otherIncomeAmount = otherIncomeObject.otherAnnualIncomeAfterTax;//"10000.00"; 
+      var otherIncomeAmount = otherIncomeObject.otherAnnualIncomeAfterTax;//"10000.00";  employmentIncomeAfterTax otherAnnualIncomeAfterTax
       if (otherIncomeObject.otherIncomeFrequency == 'Monthly') {
         otherIncomeAmount = otherIncomeAmount / 12;
       } else if (otherIncomeObject.otherIncomeFrequency == 'Fortnightly') {
@@ -640,10 +679,22 @@ createOtherIncome = (application, salesforceApplicantID) => {
       } else if (otherIncomeObject.otherIncomeFrequency == 'Weekly') {
         otherIncomeAmount = otherIncomeAmount / 52;
       }
+
+      var employerOtherPhone = otherIncomeObject.employerPhone;
+      var employerOtherPhoneAreaCode = '';
+      var employerOtherPhoneNumber = '';
+      if (employerOtherPhone) {
+        employerOtherPhone = employerOtherPhone.replace(/-/g, '');
+        employerOtherPhoneAreaCode = employerOtherPhone.substring(0, 2);
+        employerOtherPhoneNumber = employerOtherPhone.substring(2, employerOtherPhone.length);
+        sfIncomeOther.set('Employer_Business_Contact_No_Area_Code__c', employerOtherPhoneAreaCode);
+        sfIncomeOther.set('Employer_Business_Contact_No_WS__c', employerOtherPhoneNumber);
+      }
+
       sfIncomeOther.set('Income_Amount__c', otherIncomeAmount);
-      sfIncomeOther.set('Total_Income__c', otherIncomeAmount);
+      sfIncomeOther.set('Total_Income__c',0);
       sfIncomeOther.set('Emp_Bus_Name__c', otherIncomeObject.employerName);
-      sfIncomeOther.set('Emp_Bus_Contact_No__c', otherIncomeObject.employerPhone);
+      sfIncomeOther.set('Emp_Bus_Contact_No__c', employerOtherPhone);
       sfIncomeOther.set('Years_With_Employer__c', otherIncomeObject.employerYear);
       sfIncomeOther.set('Months_With_Employer__c', otherIncomeObject.employerMonth);
       sfIncomeOther.set('Occupation__c', otherIncomeObject.industry);
@@ -829,7 +880,7 @@ function insertOtherIncomeData(application, oauth, salesforceApplicantID) {
         if (!err) console.log('It worked (Other Income Object )!! Income__c');
         if (err) {
           otherIncomeStatusFlag = false;
-          console.log('ERROR MESSAGE :Income__c', err);
+          console.log('ERROR MESSAGE : Other Income__c', err);
         }
       });
     });
@@ -856,6 +907,11 @@ function populateStatus(application, oauth, salesforceApplicantID, statusMessage
     applicationSubmitStatus.set('Status_Code__c', 'SUC_001');
     applicationSubmitStatus.set('Status_Message__c', 'S1 Application :Application and Child create successful');
     console.log('S1 Application data insertion completed');
+  } else if (statusMessage == 'Email already exists.') {
+    applicationSubmitStatus.set('Status__c', 'ERR_001');
+    applicationSubmitStatus.set('Status_Code__c', 'ERR_001');
+    applicationSubmitStatus.set('Status_Message__c', statusMessage);
+    console.log('ERR_001 : S1 Application data insertion  Failed : Email already exists');
   } else {
     applicationSubmitStatus.set('Status__c', 'ERR_002');
     applicationSubmitStatus.set('Status_Code__c', 'ERR_002');
@@ -869,6 +925,22 @@ function populateStatus(application, oauth, salesforceApplicantID, statusMessage
       console.log('ERROR MESSAGE :X3rd_Party_Application_Status_Log__c', err);
     }
   });
+
+
+  applicationStatusFlag = true;
+  applicantStatusFlag = true;
+  loanPurposeFlag = true;
+  incomeStatusFlag = true;
+  otherIncomeStatusFlag = true;
+  assetStatusFlag = true;
+  debtStatusFlag = true;
+  expenseStatusFlag = true;
+  statusMessage = '';
+  configuration = '';
+  org = '';
+  branchLookup = '';
+  brandLookup = '';
+  productLookup = '';
 
 }
 
@@ -888,9 +960,9 @@ exports.saveApplication = (application) => {
   var username = configuration[env.environment].salesforce.username; //'gewsprod@ge.com.orig.orignzqa' //502083718@lfs.com.orignzqa';
   var password = configuration[env.environment].salesforce.password; //'rdss@1234KFLKuatCMksPO4Wxr8m6oAlf';
 
-  console.log(" clientId : ",clientId);
-  console.log(" clientSecret ",clientSecret);
-  console.log(" sfdcEnvironment ",sfdcEnvironment);
+  console.log(" clientId : ", clientId);
+  console.log(" clientSecret ", clientSecret);
+  console.log(" sfdcEnvironment ", sfdcEnvironment);
 
   branchLookup = configuration[env.environment].salesforce.Branch__c;
   brandLookup = configuration[env.environment].salesforce.Brand_Lookup__c;
